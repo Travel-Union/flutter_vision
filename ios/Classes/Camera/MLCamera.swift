@@ -161,10 +161,6 @@ extension MLCamera: AVCaptureVideoDataOutputSampleBufferDelegate {
         }
         
         let metadata = VisionImageMetadata()
-        metadata.orientation = imageOrientation(
-            deviceOrientation: deviceOrientation,
-            cameraPosition: self.capturePosition
-        )
         
         let image = VisionImage(buffer: sampleBuffer)
         image.metadata = metadata
