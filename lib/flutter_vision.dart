@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_vision/barcode_detector.dart';
+import 'package:flutter_vision/face_detector.dart';
 import 'package:flutter_vision/text_recognizer.dart';
 
 class FlutterVision extends ValueNotifier<CameraValue> {
@@ -15,6 +16,7 @@ class FlutterVision extends ValueNotifier<CameraValue> {
 
   TextRecognizer textRecognizer;
   BarcodeDetector barcodeDetector;
+  FaceDetector faceDetector;
 
   int _textureId;
   Completer<void> _completer;
@@ -169,6 +171,22 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     return await barcodeDetector.close();
   }
 
+  Future<bool> addFaceRecognizer() async {
+    if (!value.isInitialized) {
+      throw new Exception("MLVision isn't initialized yet.");
+    }
+
+    faceDetector = FaceDetector();
+    return await faceDetector.startDetection();
+  }
+
+  Future<void> removeFaceRecognizer() async {
+    if (!value.isInitialized) {
+      throw new Exception("FirebaseVision isn't initialized yet.");
+    }
+    await faceDetector.close();
+  }
+
   Stream<dynamic> subscribe() {
     return EventChannel('flutter_vision/events')
         .receiveBroadcastStream()
@@ -179,6 +197,8 @@ class FlutterVision extends ValueNotifier<CameraValue> {
         } else if (event["eventType"] == "textRecognition") {
           final data = Map<String, dynamic>.from(event['data']);
           return VisionText(data);
+        } else if (event["eventType"] == "faceDetection") {
+          return Face.fromList(event['data']);
         }
       } catch (e) {
         print(e);

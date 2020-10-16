@@ -7,6 +7,9 @@ PODS:
   - Firebase/MLVisionBarcodeModel (6.32.0):
     - Firebase/CoreOnly
     - FirebaseMLVisionBarcodeModel (~> 0.21.0)
+  - Firebase/MLVisionFaceModel (6.32.0):
+    - Firebase/CoreOnly
+    - FirebaseMLVisionFaceModel (~> 0.21.0)
   - Firebase/MLVisionTextModel (6.32.0):
     - Firebase/CoreOnly
     - FirebaseMLVisionTextModel (~> 0.21.0)
@@ -44,12 +47,15 @@ PODS:
     - Protobuf (~> 3.12)
   - FirebaseMLVisionBarcodeModel (0.21.0):
     - FirebaseMLVision (~> 0.21)
+  - FirebaseMLVisionFaceModel (0.21.0):
+    - FirebaseMLVision (~> 0.21)
   - FirebaseMLVisionTextModel (0.21.0):
     - FirebaseMLVision (~> 0.21)
   - Flutter (1.0.0)
   - flutter_vision (0.0.1):
     - Firebase/MLVision
     - Firebase/MLVisionBarcodeModel
+    - Firebase/MLVisionFaceModel
     - Firebase/MLVisionTextModel
     - Flutter
   - GoogleAPIClientForREST/Core (1.4.3):
@@ -103,6 +109,7 @@ SPEC REPOS:
     - FirebaseMLCommon
     - FirebaseMLVision
     - FirebaseMLVisionBarcodeModel
+    - FirebaseMLVisionFaceModel
     - FirebaseMLVisionTextModel
     - GoogleAPIClientForREST
     - GoogleDataTransport
@@ -127,9 +134,10 @@ SPEC CHECKSUMS:
   FirebaseMLCommon: d218d75dd1c6c4e447f731ac22da56b88cb79431
   FirebaseMLVision: 68dd092b4c52a7ac163ec0d4f541d5711fc9fec6
   FirebaseMLVisionBarcodeModel: 394cd61c52dc03558088caf82b0dade8028f57d5
+  FirebaseMLVisionFaceModel: a67b2bf9b8407127a0bdb0ba98eb265637d1dc9d
   FirebaseMLVisionTextModel: e9f3cba0f31022ae9dd3d246aff9849075cacd98
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_vision: 65f91cf36d917a86672e4341fa2d6ac5d19db7c8
+  flutter_vision: 0004f8956ae8a9a49765fcf9e1901b09437509d9
   GoogleAPIClientForREST: e2d95a611ac06a90d143c93bfd8597719f8b0938
   GoogleDataTransport: e85fb700c9b027079ce182c3d08e12e0f9618bb4
   GoogleToolboxForMac: 800648f8b3127618c1b59c7f97684427630c5ea3

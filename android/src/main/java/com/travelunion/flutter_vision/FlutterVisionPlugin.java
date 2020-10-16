@@ -57,6 +57,7 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata;
 import com.travelunion.flutter_vision.detectors.BarcodeDetector;
 import com.travelunion.flutter_vision.detectors.Detector;
+import com.travelunion.flutter_vision.detectors.FaceDetector;
 import com.travelunion.flutter_vision.detectors.TextRecognizer;
 
 import static android.content.Context.CAMERA_SERVICE;
@@ -165,6 +166,7 @@ public class FlutterVisionPlugin implements FlutterPlugin, MethodCallHandler, Ac
         break;
       case "BarcodeDetector#start":
       case "TextRecognizer#start":
+      case "FaceDetector#start":
         Detector detector = null;
 
         if (camera == null) {
@@ -180,12 +182,16 @@ public class FlutterVisionPlugin implements FlutterPlugin, MethodCallHandler, Ac
             case "TextRecognizer#start":
               detector = new TextRecognizer(FirebaseVision.getInstance());
               break;
+            case "FaceDetector#start":
+              detector = new FaceDetector(FirebaseVision.getInstance());
+              break;
           }
           addDetector(detector, result);
         }
         break;
       case "BarcodeDetector#close":
       case "TextRecognizer#close":
+      case "FaceDetector#close":
         if(camera == null) {
           result.success(false);
         } else {

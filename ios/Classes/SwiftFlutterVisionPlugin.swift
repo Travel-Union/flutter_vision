@@ -85,7 +85,8 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
             }
             break
         case "BarcodeDetector#start",
-             "TextRecognizer#start":
+             "TextRecognizer#start",
+             "FaceDetector#start":
             guard camera != nil else {
                 result(false)
                 return
@@ -102,6 +103,10 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
                     break
                 case "BarcodeDetector#start":
                     camera!.handlers.append(BarcodeDetectorHandler(name: "BarcodeDetector"))
+                    break
+                case "FaceDetector#start":
+                    camera!.handlers.append(FaceDetectionHandler(name: "FaceDetector"))
+                    break
                 default:
                     result(false)
                     return
@@ -111,7 +116,8 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
             result(true)
             break
         case "BarcodeDetector#close",
-             "TextRecognizer#close":
+             "TextRecognizer#close",
+             "FaceDetector#close":
             guard camera != nil else {
                 result(false)
                 return
