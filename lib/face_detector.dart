@@ -26,7 +26,7 @@ class Face {
   final double smile;
   final double rightEyeOpen;
   final double leftEyeOpen;
-  final String trackingId;
+  final int trackingId;
   final Position leftEye;
   final Position rightEye;
   final Position leftCheek;
@@ -45,16 +45,16 @@ class Face {
         rightEyeOpen = _data['rightEyeOpen'],
         leftEyeOpen = _data['leftEyeOpen'],
         trackingId = _data['trackingId'],
-        leftEye = Position(_data['leftEye']),
-        rightEye = Position(_data['rightEye']),
-        leftCheek = Position(_data['leftCheek']),
-        rightCheek = Position(_data['rightCheek']),
-        leftEar = Position(_data['leftEar']),
-        rightEar = Position(_data['rightEar']),
-        mouthLeft = Position(_data['mouthLeft']),
-        mouthBottom = Position(_data['mouthBottom']),
-        mouthRight = Position(_data['mouthRight']),
-        noseBase = Position(_data['noseBase']);
+        leftEye = _data['leftEye'] != null ? Position(_data['leftEye']) : null,
+        rightEye = _data['rightEye'] != null ? Position(_data['rightEye']) : null,
+        leftCheek = _data['leftCheek'] != null ? Position(_data['leftCheek']) : null,
+        rightCheek = _data['rightCheek'] != null ? Position(_data['rightCheek']) : null,
+        leftEar = _data['leftEar'] != null ? Position(_data['leftEar']) : null,
+        rightEar = _data['rightEar'] != null ? Position(_data['rightEar']) : null,
+        mouthLeft = _data['mouthLeft'] != null ? Position(_data['mouthLeft']) : null,
+        mouthBottom = _data['mouthBottom'] != null ? Position(_data['mouthBottom']) : null,
+        mouthRight = _data['mouthRight'] != null ? Position(_data['mouthRight']) : null,
+        noseBase = _data['noseBase'] != null ? Position(_data['noseBase']) : null;
 
   static List<Face> fromList(List<dynamic> data) {
     return data.map((m) => Face(m)).toList();

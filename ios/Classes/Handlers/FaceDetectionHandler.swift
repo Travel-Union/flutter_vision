@@ -21,6 +21,8 @@ class FaceDetectionHandler : ImageHandler {
         let vision = Vision.vision()
         
         let options = VisionFaceDetectorOptions()
+        options.classificationMode = .all
+        options.landmarkMode = .all
         
         self.faceDetector = vision.faceDetector(options: options)
     }
@@ -31,7 +33,7 @@ class FaceDetectionHandler : ImageHandler {
         self.faceDetector.process(image) { faces, error in
             
             guard error == nil else {
-                os_log("Error decoding text %@", error!.localizedDescription)
+                os_log("Error decoding face %@", error!.localizedDescription)
                 return
             }
             
@@ -39,7 +41,7 @@ class FaceDetectionHandler : ImageHandler {
             return
           }
             
-            let faceDataList = [[String:Any]]()
+            var faceDataList = [[String:Any]]()
 
             for face in faces {
                 var data = [String:Any]()
@@ -101,12 +103,14 @@ class FaceDetectionHandler : ImageHandler {
                 }
                 
                 if face.hasLeftEyeOpenProbability {
-                    data["leftEyeOpen"] = face.hasLeftEyeOpenProbability
+                    data["leftEyeOpen"] = face.leftEyeOpenProbability
                 }
                 
                 if face.hasTrackingID {
                     data["trackingId"] = face.trackingID
                 }
+                
+                faceDataList.append(data)
             }
             
             if(faceDataList.count > 0) {

@@ -171,7 +171,7 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     return await barcodeDetector.close();
   }
 
-  Future<bool> addFaceRecognizer() async {
+  Future<bool> addFaceDetector() async {
     if (!value.isInitialized) {
       throw new Exception("MLVision isn't initialized yet.");
     }
@@ -180,7 +180,7 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     return await faceDetector.startDetection();
   }
 
-  Future<void> removeFaceRecognizer() async {
+  Future<void> removeFaceDetector() async {
     if (!value.isInitialized) {
       throw new Exception("FirebaseVision isn't initialized yet.");
     }

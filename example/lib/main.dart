@@ -1,13 +1,26 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_vision/face_detector.dart';
 import 'package:flutter_vision/flutter_vision.dart';
 import 'package:flutter_vision/barcode_detector.dart';
 import 'package:flutter_vision/text_recognizer.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('Plugin example app'),
+        ),
+        body: MyApp(),
+      ),
+    ),
+  );
 }
 
 class MyApp extends StatefulWidget {
@@ -17,6 +30,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   FlutterVision _controller;
+  Uint8List image;
 
   @override
   void initState() {
@@ -31,11 +45,11 @@ class _MyAppState extends State<MyApp> {
     try {
       devices = await FlutterVision.availableCameras;
       _controller = FlutterVision(
-          devices.firstWhere((c) => c.lensDirection == LensDirection.back),
+          devices.firstWhere((c) => c.lensDirection == LensDirection.front),
           Resolution.ultrahd);
       await _controller.initialize();
 
-      await _controller.addTextRecognizer();
+      await _controller.addFaceDetector();
 
       _controller.subscribe().listen((data) {
         if (data != null) {
@@ -43,6 +57,8 @@ class _MyAppState extends State<MyApp> {
             data.forEach((b) => print("barcode: ${b.rawValue}"));
           } else if (data is VisionText) {
             print("text: ${data.text}");
+          } else if (data is List<Face>) {
+            print("smile: ${data.first?.rotY}");
           }
         }
       });
@@ -58,7 +74,8 @@ class _MyAppState extends State<MyApp> {
     setState(() {});
   }
 
-  Widget _buildImage() {
+  @override
+  Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints.expand(),
       child: _controller == null
@@ -77,24 +94,32 @@ class _MyAppState extends State<MyApp> {
                 CameraPreview(_controller),
                 FlatButton(
                   onPressed: () async {
-                    print(await FlutterVision.capturePhoto);
+                    final img = await FlutterVision.capturePhoto;
+
+                    if (img == null) return;
+
+                    setState(() {
+                      image = img;
+                    });
                   },
                   child: Text("Capture"),
                 ),
+                image != null
+                    ? GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            image = null;
+                          });
+                        },
+                        child: Image.memory(
+                          image,
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                        ),
+                      )
+                    : Container(),
               ],
             ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Plugin example app'),
-        ),
-        body: _buildImage(),
-      ),
     );
   }
 }

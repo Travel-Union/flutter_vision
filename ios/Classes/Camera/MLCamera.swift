@@ -15,6 +15,7 @@ class MLCamera : NSObject {
     var captureSession: AVCaptureSession!
     var previewSize: CMVideoDimensions!
     var capturePosition: AVCaptureDevice.Position!
+    var deviceOrientation: UIInterfaceOrientation!
     let deviceId: String!
     var handlers: [ImageHandler]!
     var eventSink: FlutterEventSink?
@@ -53,6 +54,14 @@ class MLCamera : NSObject {
         
         captureSession.addInput(input)
         captureSession.addOutput(output)
+        
+        self.deviceOrientation = UIApplication.shared.statusBarOrientation
+        captureSession?.outputs.forEach {
+                $0.connections.forEach {
+                    $0.videoOrientation = self.mapOrientation(orientation: self.deviceOrientation)
+                    $0.isVideoMirrored = self.capturePosition == AVCaptureDevice.Position.front
+                }
+            }
     }
     
     func start() {
@@ -102,30 +111,30 @@ class MLCamera : NSObject {
     func getBestAvailableResolution(requirement: String, available: inout [String]) -> AVCaptureSession.Preset {
         switch requirement {
         case "ultrahd":
-            if(captureSession.canSetSessionPreset(.hd4K3840x2160))
+            if(captureSession.canSetSessionPreset(.hd4K3840x2160) && self.captureDevice.supportsSessionPreset(AVCaptureSession.Preset.hd4K3840x2160))
             {
                 return .hd4K3840x2160
             }
             break
         case "fullhd":
-            if(captureSession.canSetSessionPreset(.hd1920x1080))
+            if(captureSession.canSetSessionPreset(.hd1920x1080) && self.captureDevice.supportsSessionPreset(AVCaptureSession.Preset.hd1920x1080))
             {
                 return .hd1920x1080
             }
             break
         case "hd":
-            if(captureSession.canSetSessionPreset(.hd1280x720))
+            if(captureSession.canSetSessionPreset(.hd1280x720) && self.captureDevice.supportsSessionPreset(AVCaptureSession.Preset.hd1280x720))
             {
                 return .hd1280x720
             }
             break
         case "vga":
-            if(captureSession.canSetSessionPreset(.vga640x480))
+            if(captureSession.canSetSessionPreset(.vga640x480) && self.captureDevice.supportsSessionPreset(AVCaptureSession.Preset.vga640x480))
             {
                 return .vga640x480
             }
         case "potato":
-            if(captureSession.canSetSessionPreset(.cif352x288))
+            if(captureSession.canSetSessionPreset(.cif352x288) && self.captureDevice.supportsSessionPreset(AVCaptureSession.Preset.cif352x288))
             {
                 return .cif352x288
             }
@@ -150,9 +159,19 @@ extension MLCamera : FlutterTexture {
 
 extension MLCamera: AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
-        let deviceOrientation = UIDevice.current.orientation;
         
-        connection.videoOrientation = self.mapOrientation(orientation: deviceOrientation);
+        DispatchQueue.main.async {
+            self.setDeviceOrientation()
+        }
+        
+        let orientation = imageOrientation(
+            deviceOrientation: deviceOrientation,
+            cameraPosition: capturePosition
+        )
+
+        connection.videoOrientation = self.mapOrientation(orientation: deviceOrientation)
+        connection.isVideoMirrored = self.capturePosition == AVCaptureDevice.Position.front
+        
         pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
         textureRegistry.textureFrameAvailable(self.textureId)
         
@@ -161,6 +180,7 @@ extension MLCamera: AVCaptureVideoDataOutputSampleBufferDelegate {
         }
         
         let metadata = VisionImageMetadata()
+        metadata.orientation = orientation
         
         let image = VisionImage(buffer: sampleBuffer)
         image.metadata = metadata
@@ -178,7 +198,11 @@ extension MLCamera: AVCaptureVideoDataOutputSampleBufferDelegate {
         }
     }
     
-    func mapOrientation(orientation: UIDeviceOrientation) -> AVCaptureVideoOrientation {
+    func setDeviceOrientation(){
+        self.deviceOrientation = UIApplication.shared.statusBarOrientation
+    }
+    
+    func mapOrientation(orientation: UIInterfaceOrientation) -> AVCaptureVideoOrientation {
         switch orientation {
         case .portrait:
             return .portrait
@@ -188,7 +212,7 @@ extension MLCamera: AVCaptureVideoDataOutputSampleBufferDelegate {
             return .portraitUpsideDown
         case .landscapeRight:
             return .landscapeRight
-        case .faceDown, .faceUp, .unknown:
+        case .unknown:
             return .portrait
         default:
             return .portrait
@@ -196,47 +220,9 @@ extension MLCamera: AVCaptureVideoDataOutputSampleBufferDelegate {
     }
     
     func imageOrientation(
-        deviceOrientation: UIDeviceOrientation,
+        deviceOrientation: UIInterfaceOrientation,
         cameraPosition: AVCaptureDevice.Position
-    ) -> VisionDetectorImageOrientation {
-        switch deviceOrientation {
-        case .portrait:
-            return cameraPosition == .front ? UIImage.Orientation.leftMirrored.toVisionOrientation() : UIImage.Orientation.right.toVisionOrientation()
-        case .landscapeLeft:
-            return cameraPosition == .front ? UIImage.Orientation.downMirrored.toVisionOrientation() : UIImage.Orientation.up.toVisionOrientation()
-        case .portraitUpsideDown:
-            return cameraPosition == .front ? UIImage.Orientation.rightMirrored.toVisionOrientation() : UIImage.Orientation.left.toVisionOrientation()
-        case .landscapeRight:
-            return cameraPosition == .front ? UIImage.Orientation.upMirrored.toVisionOrientation() : UIImage.Orientation.down.toVisionOrientation()
-        case .faceDown, .faceUp, .unknown:
-            return UIImage.Orientation.up.toVisionOrientation()
-        default:
-            return UIImage.Orientation.up.toVisionOrientation()
-        }
+        ) -> VisionDetectorImageOrientation {
+        return cameraPosition == .front ? .topRight : .topLeft
     }
 }
-
-extension UIImage.Orientation {
-    func toVisionOrientation() -> VisionDetectorImageOrientation {
-        switch (self) {
-        case .up:
-            return .topLeft;
-        case .down:
-            return .bottomRight;
-        case .left:
-            return .leftBottom;
-        case .right:
-            return .rightTop;
-        case .upMirrored:
-            return .topRight;
-        case .downMirrored:
-            return .bottomLeft;
-        case .leftMirrored:
-            return .leftTop;
-        case .rightMirrored:
-            return .rightBottom;
-        }
-    }
-}
-
-

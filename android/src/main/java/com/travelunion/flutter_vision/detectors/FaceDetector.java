@@ -11,6 +11,7 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.common.FirebaseVisionPoint;
 import com.google.firebase.ml.vision.face.FirebaseVisionFace;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetector;
+import com.google.firebase.ml.vision.face.FirebaseVisionFaceDetectorOptions;
 import com.google.firebase.ml.vision.face.FirebaseVisionFaceLandmark;
 
 import java.io.IOException;
@@ -26,7 +27,13 @@ public class FaceDetector implements Detector {
     private final FirebaseVisionFaceDetector detector;
 
     public FaceDetector(FirebaseVision vision) {
-        detector = vision.getVisionFaceDetector();
+        FirebaseVisionFaceDetectorOptions options =
+                new FirebaseVisionFaceDetectorOptions.Builder()
+                        .setLandmarkMode(FirebaseVisionFaceDetectorOptions.ALL_LANDMARKS)
+                        .setClassificationMode(FirebaseVisionFaceDetectorOptions.ALL_CLASSIFICATIONS)
+                        .build();
+
+        detector = vision.getVisionFaceDetector(options);
     }
 
     @Override
@@ -102,11 +109,16 @@ public class FaceDetector implements Detector {
 
                                     data.add(faceMap);
                                 }
+
                                 Map<String, Object> res = new HashMap<>();
                                 res.put("eventType", "faceDetection");
                                 res.put("data", data);
+
                                 throttle.set(false);
-                                result.success(res);
+
+                                if(!data.isEmpty()) {
+                                    result.success(res);
+                                }
                             }
                         })
                 .addOnFailureListener(
@@ -114,7 +126,7 @@ public class FaceDetector implements Detector {
                             @Override
                             public void onFailure(@NonNull Exception exception) {
                                 throttle.set(false);
-                                result.error("faceDetectorError", exception.getLocalizedMessage(), null);
+                                result.error("faceDetectionError", exception.getLocalizedMessage(), null);
                             }
                         });
     }

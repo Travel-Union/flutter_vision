@@ -70,16 +70,24 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
                     return
                 }
                 
-                self.initialize(resolution: resolution, deviceId: deviceId)
-                self.camera?.start()
-                
-                var dict: [String:Any] = [String:Any]()
-                
-                dict["textureId"] = camera?.textureId
-                dict["width"] = camera?.previewSize.width
-                dict["height"] = camera?.previewSize.height
-                
-                result(dict)
+                switch AVCaptureDevice.authorizationStatus(for: .video) {
+                    case .authorized:
+                        let session = self.setupCaptureSession(resolution: resolution, deviceId: deviceId)
+                        result(session)
+                        break
+                    case .notDetermined: // The user has not yet been asked for camera access.
+                        AVCaptureDevice.requestAccess(for: .video) { granted in
+                            if granted {
+                                let session = self.setupCaptureSession(resolution: resolution, deviceId: deviceId)
+                                result(session)
+                                return
+                            }
+                            
+                            result(nil)
+                        }
+                    default:
+                        result(nil)
+                }
             } else {
                 result("'resolution' and 'deviceId' are required for method: (" + call.method + ")")
             }
@@ -153,6 +161,19 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
     
     private func initialize(resolution: String, deviceId: String) {
         self.camera = MLCamera(resolution: resolution, textureRegistry: self.textureRegistry, deviceId: deviceId)
+    }
+    
+    private func setupCaptureSession(resolution: String, deviceId: String) -> [String:Any] {
+        self.initialize(resolution: resolution, deviceId: deviceId)
+        self.camera?.start()
+        
+        var dict: [String:Any] = [String:Any]()
+        
+        dict["textureId"] = camera?.textureId
+        dict["width"] = camera?.previewSize.width
+        dict["height"] = camera?.previewSize.height
+        
+        return dict
     }
 }
 
