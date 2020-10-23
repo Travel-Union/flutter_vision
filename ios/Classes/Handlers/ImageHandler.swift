@@ -6,10 +6,11 @@
 //
 
 import FirebaseMLVision
+import AVKit
 
 protocol ImageHandler {
     var name: String! { get set }
     var processing: Atomic<Bool> { get set }
-    func onImage(image: VisionImage, callback: @escaping (_:Dictionary<String, Any>) -> Void) -> Void
+    func onImage(imageBuffer: CMSampleBuffer, deviceOrientation: UIInterfaceOrientation, cameraPosition: AVCaptureDevice.Position, callback: @escaping (_:Dictionary<String, Any>) -> Void) -> Void
 }
 

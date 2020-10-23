@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -58,7 +59,11 @@ class _MyAppState extends State<MyApp> {
           } else if (data is VisionText) {
             print("text: ${data.text}");
           } else if (data is List<Face>) {
-            print("smile: ${data.first?.rotY}");
+            if(data.length == 1) {
+              final face = data.first;
+
+              print(face?.boundingBox);
+            }
           }
         }
       });

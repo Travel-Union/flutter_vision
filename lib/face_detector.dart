@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter_vision/flutter_vision.dart';
 
 class FaceDetector {
@@ -37,6 +39,7 @@ class Face {
   final Position mouthBottom;
   final Position mouthRight;
   final Position noseBase;
+  final BoundingBox boundingBox;
 
   Face(dynamic _data)
       : rotY = _data['rotY'],
@@ -54,7 +57,8 @@ class Face {
         mouthLeft = _data['mouthLeft'] != null ? Position(_data['mouthLeft']) : null,
         mouthBottom = _data['mouthBottom'] != null ? Position(_data['mouthBottom']) : null,
         mouthRight = _data['mouthRight'] != null ? Position(_data['mouthRight']) : null,
-        noseBase = _data['noseBase'] != null ? Position(_data['noseBase']) : null;
+        noseBase = _data['noseBase'] != null ? Position(_data['noseBase']) : null,
+        boundingBox = _data['boundingBox'] != null && _data['boundingBox']['top'] != null ? BoundingBox.fromMap(_data['boundingBox']) : null;
 
   static List<Face> fromList(List<dynamic> data) {
     return data.map((m) => Face(m)).toList();
@@ -70,4 +74,19 @@ class Position {
       : x = data["x"],
         y = data["y"],
         z = data["z"];
+}
+
+class BoundingBox {
+  final num left;
+  final num top;
+  final num width;
+  final num height;
+
+  BoundingBox.fromMap(dynamic data) : 
+  left = data['left'],
+  top = data['top'],
+  width = data['width'],
+  height = data['height'];
+
+  BoundingBox.fromLTWH(this.left, this.top, this.width, this.height);
 }

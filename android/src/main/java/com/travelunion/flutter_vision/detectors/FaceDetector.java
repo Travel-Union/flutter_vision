@@ -1,5 +1,6 @@
 package com.travelunion.flutter_vision.detectors;
 
+import android.graphics.Rect;
 import android.media.Image;
 
 import androidx.annotation.NonNull;
@@ -102,6 +103,8 @@ public class FaceDetector implements Detector {
                                         faceMap.put("noseBase", getPosition(noseBase.getPosition()));
                                     }
 
+                                    faceMap.put("boundingBox", formatBoundingBox(face.getBoundingBox()));
+
                                     faceMap.put("smile", face.getSmilingProbability());
                                     faceMap.put("rightEyeOpen", face.getRightEyeOpenProbability());
                                     faceMap.put("leftEyeOpen", face.getLeftEyeOpenProbability());
@@ -147,6 +150,17 @@ public class FaceDetector implements Detector {
         result.put("x", position.getX());
         result.put("y", position.getY());
         result.put("z", position.getZ());
+
+        return result;
+    }
+
+    private Map<String, Object> formatBoundingBox(Rect boundingBox) {
+        Map<String, Object> result = new HashMap<>();
+
+        result.put("left", boundingBox.left);
+        result.put("top", boundingBox.top);
+        result.put("width", boundingBox.width());
+        result.put("height", boundingBox.height());
 
         return result;
     }

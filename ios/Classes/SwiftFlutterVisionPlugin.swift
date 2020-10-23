@@ -113,7 +113,11 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
                     camera!.handlers.append(BarcodeDetectorHandler(name: "BarcodeDetector"))
                     break
                 case "FaceDetector#start":
-                    camera!.handlers.append(FaceDetectionHandler(name: "FaceDetector"))
+                    if #available(iOS 11.0, *) {
+                        camera!.handlers.append(VisionFaceDetectionHandler(name: "FaceDetector"))
+                    } else {
+                        // Use CIDetector maybe?
+                    }
                     break
                 default:
                     result(false)

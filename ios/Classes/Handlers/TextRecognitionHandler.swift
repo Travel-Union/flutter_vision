@@ -7,20 +7,21 @@
 
 import FirebaseMLVision
 import os.log
+import AVKit
 
 class TextRecognitionHandler : ImageHandler {
-    let textRecognizer: VisionTextRecognizer!
-    var name: String!
-    var processing: Atomic<Bool>
-    
-    init(name: String) {
-        self.name = name
-        self.processing = Atomic<Bool>(false)
-        let vision = Vision.vision()
-        self.textRecognizer = vision.onDeviceTextRecognizer()
-    }
-    
-    func onImage(image: VisionImage, callback: @escaping (Dictionary<String, Any>) -> Void) {
+    func onImage(imageBuffer: CMSampleBuffer, deviceOrientation: UIInterfaceOrientation, cameraPosition: AVCaptureDevice.Position, callback: @escaping (Dictionary<String, Any>) -> Void) {
+        let orientation = ImageHelper.imageOrientation(
+            deviceOrientation: deviceOrientation,
+            cameraPosition: cameraPosition
+        )
+        
+        let metadata = VisionImageMetadata()
+        metadata.orientation = orientation
+        
+        let image = VisionImage(buffer: imageBuffer)
+        image.metadata = metadata
+        
         self.textRecognizer.process(image) { result, error in
             self.processing.value = false
             
@@ -92,6 +93,19 @@ class TextRecognitionHandler : ImageHandler {
                 callback(["eventType": "textRecognition", "data": ["text": resultText, "blocks": blocks]])
             }
         }
+    }
+    
+
+    
+    let textRecognizer: VisionTextRecognizer!
+    var name: String!
+    var processing: Atomic<Bool>
+    
+    init(name: String) {
+        self.name = name
+        self.processing = Atomic<Bool>(false)
+        let vision = Vision.vision()
+        self.textRecognizer = vision.onDeviceTextRecognizer()
     }
 }
 

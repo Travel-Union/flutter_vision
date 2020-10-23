@@ -8,29 +8,23 @@
 import FirebaseMLVision
 import FirebaseMLCommon
 import os.log
+import AVKit
 
 class FaceDetectionHandler : ImageHandler {
-    let faceDetector: VisionFaceDetector!
-    var name: String!
-    
-    var processing: Atomic<Bool>
-    
-    init(name: String) {
-        self.name = name
-        self.processing = Atomic<Bool>(false)
-        let vision = Vision.vision()
+    func onImage(imageBuffer: CMSampleBuffer, deviceOrientation: UIInterfaceOrientation, cameraPosition: AVCaptureDevice.Position, callback: @escaping (Dictionary<String, Any>) -> Void) {
+        let orientation = ImageHelper.imageOrientation(
+            deviceOrientation: deviceOrientation,
+            cameraPosition: cameraPosition
+        )
         
-        let options = VisionFaceDetectorOptions()
-        options.classificationMode = .all
-        options.landmarkMode = .all
+        let metadata = VisionImageMetadata()
+        metadata.orientation = orientation
         
-        self.faceDetector = vision.faceDetector(options: options)
-    }
-    
-    func onImage(image: VisionImage, callback: @escaping (Dictionary<String, Any>) -> Void) {
-        self.processing.value = false
+        let image = VisionImage(buffer: imageBuffer)
+        image.metadata = metadata
         
         self.faceDetector.process(image) { faces, error in
+            self.processing.value = false
             
             guard error == nil else {
                 os_log("Error decoding face %@", error!.localizedDescription)
@@ -110,6 +104,8 @@ class FaceDetectionHandler : ImageHandler {
                     data["trackingId"] = face.trackingID
                 }
                 
+                data["boundingBox"] = self.formatBoundingBox(frame: face.frame)
+                
                 faceDataList.append(data)
             }
             
@@ -119,11 +115,37 @@ class FaceDetectionHandler : ImageHandler {
         }
     }
     
+    let faceDetector: VisionFaceDetector!
+    var name: String!
+    
+    var processing: Atomic<Bool>
+    
+    init(name: String) {
+        self.name = name
+        self.processing = Atomic<Bool>(false)
+        let vision = Vision.vision()
+        
+        let options = VisionFaceDetectorOptions()
+        options.classificationMode = .all
+        options.landmarkMode = .all
+        
+        self.faceDetector = vision.faceDetector(options: options)
+    }
+    
     func getPosition(landmark: VisionFaceLandmark) -> [String:Any] {
         var result = [String:Any]()
         result["x"] = landmark.position.x
         result["y"] = landmark.position.y
         result["z"] = landmark.position.z
+        return result
+    }
+    
+    func formatBoundingBox(frame: CGRect) -> [String:Any] {
+        var result = [String:Any]()
+        result["left"] = frame.origin.x
+        result["top"] = frame.origin.y
+        result["width"] = frame.size.width
+        result["height"] = frame.size.height
         return result
     }
 }

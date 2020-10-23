@@ -9,6 +9,7 @@ import Foundation
 import AVFoundation
 import os.log
 import FirebaseMLVision
+import Vision
 
 class MLCamera : NSObject {
     var captureDevice: AVCaptureDevice!
@@ -164,11 +165,6 @@ extension MLCamera: AVCaptureVideoDataOutputSampleBufferDelegate {
             self.setDeviceOrientation()
         }
         
-        let orientation = imageOrientation(
-            deviceOrientation: deviceOrientation,
-            cameraPosition: capturePosition
-        )
-
         connection.videoOrientation = self.mapOrientation(orientation: deviceOrientation)
         connection.isVideoMirrored = self.capturePosition == AVCaptureDevice.Position.front
         
@@ -179,23 +175,42 @@ extension MLCamera: AVCaptureVideoDataOutputSampleBufferDelegate {
             return
         }
         
-        let metadata = VisionImageMetadata()
-        metadata.orientation = orientation
-        
-        let image = VisionImage(buffer: sampleBuffer)
-        image.metadata = metadata
-        
         for handler in self.handlers! {
             guard !handler.processing.swap(true) else {
                 return
             }
             
             DispatchQueue.global(qos: DispatchQoS.QoSClass.utility).async {
-                handler.onImage(image: image) { (result) -> () in
+                handler.onImage(imageBuffer: sampleBuffer, deviceOrientation: self.deviceOrientation, cameraPosition: self.capturePosition) { (result) -> () in
                     self.eventSink?(result)
                 }
             }
         }
+    }
+    
+    var exifOrientationFromDeviceOrientation: Int32 {
+        let exifOrientation: DeviceOrientation
+        enum DeviceOrientation: Int32 {
+            case top0ColLeft = 1
+            case top0ColRight = 2
+            case bottom0ColRight = 3
+            case bottom0ColLeft = 4
+            case left0ColTop = 5
+            case right0ColTop = 6
+            case right0ColBottom = 7
+            case left0ColBottom = 8
+        }
+        switch UIDevice.current.orientation {
+        case .portraitUpsideDown:
+            exifOrientation = .left0ColBottom
+        case .landscapeLeft:
+            exifOrientation = .top0ColLeft
+        case .landscapeRight:
+            exifOrientation = .bottom0ColRight
+        default:
+            exifOrientation = .right0ColTop
+        }
+        return exifOrientation.rawValue
     }
     
     func setDeviceOrientation(){
@@ -217,12 +232,5 @@ extension MLCamera: AVCaptureVideoDataOutputSampleBufferDelegate {
         default:
             return .portrait
         }
-    }
-    
-    func imageOrientation(
-        deviceOrientation: UIInterfaceOrientation,
-        cameraPosition: AVCaptureDevice.Position
-        ) -> VisionDetectorImageOrientation {
-        return cameraPosition == .front ? .topRight : .topLeft
     }
 }
