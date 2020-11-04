@@ -113,10 +113,21 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
                     camera!.handlers.append(BarcodeDetectorHandler(name: "BarcodeDetector"))
                     break
                 case "FaceDetector#start":
-                    if #available(iOS 11.0, *) {
-                        camera!.handlers.append(VisionFaceDetectionHandler(name: "FaceDetector"))
+                    guard let args = call.arguments else {
+                        result("no arguments found for method: (" + call.method + "). Arguments: 'width' and 'height' required.")
+                        return
+                    }
+                    
+                    if let myArgs = args as? [String: Any],
+                        let width = myArgs["width"] as? CGFloat,
+                        let height = myArgs["height"] as? CGFloat {
+                        
+                        camera!.handlers.append(VisionFaceDetectionHandler(name: "FaceDetector", width: width, height: height))
+                        result(UIDevice.current.systemVersion)
+                        return
                     } else {
-                        // Use CIDetector maybe?
+                        result(false)
+                        return
                     }
                     break
                 default:

@@ -8,51 +8,100 @@
 import Vision
 import AVKit
 
-@available(iOS 11.0, *)
 class VisionFaceDetectionHandler : ImageHandler {
     func onImage(imageBuffer: CMSampleBuffer, deviceOrientation: UIInterfaceOrientation, cameraPosition: AVCaptureDevice.Position, callback: @escaping (Dictionary<String, Any>) -> Void) {
-        let detectFaceRequest = VNDetectFaceLandmarksRequest { (request, error) in
-          self.processing.value = false
-            
-          if let results = request.results as? [VNFaceObservation] {
-            var faceDataList = [[String:Any]]()
+        /*if #available(iOS 12.0, *) {
+            let detectFaceRequest = VNDetectFaceLandmarksRequest { (request, error) in
+              self.processing.value = false
+                
+                guard let results = request.results as? [VNFaceObservation],
+                      let result = results.first else {
+                    return
+                }
+                
+                var faceDataList = [[String:Any]]()
 
-            for face in results {
                 var data = [String:Any]()
                 
-                data["boundingBox"] = self.formatBoundingBox(frame: face.boundingBox)
+                let transform = CGAffineTransform(scaleX: 1, y: -1)
+                  .translatedBy(x: 0,
+                                y: -self.height)
+                  let scale = CGAffineTransform.identity
+                    .scaledBy(x: self.width,
+                              y: self.height)
+                  let bounds = result.boundingBox
+                  .applying(scale).applying(transform)
+
                 
-                if #available(iOS 12.0, *) {
-                    data["rotY"] = face.yaw
-                    data["rotZ"] = face.roll
-                } else {
-                    // Use CIDetector maybe?
-                }
+                data["boundingBox"] = self.formatBoundingBox(frame: bounds)
                 
-                guard let landmarks = face.landmarks else {
-                    faceDataList.append(data)
-                    continue
-                }
+                data["rotY"] = self.rad2deg(result.yaw)
+                data["rotZ"] = self.rad2deg(result.roll)
                 
                 faceDataList.append(data)
+                
+                if(faceDataList.count > 0) {
+                    callback(["eventType": "faceDetection", "data": faceDataList])
+                }
             }
+
+            let vnImage = VNImageRequestHandler(cvPixelBuffer: CMSampleBufferGetImageBuffer(imageBuffer)!, options: [:])
+            try? vnImage.perform([detectFaceRequest])
+        } else {*/
+            let pixelBuffer = CMSampleBufferGetImageBuffer(imageBuffer)!
+            let ciImage = CIImage.init(cvImageBuffer: pixelBuffer, options: [:])
+
+            let options = [CIDetectorAccuracy: CIDetectorAccuracyHigh]
+            let faceDetector = CIDetector(ofType: CIDetectorTypeFace, context: nil, options: options)!
+            
+            let results = faceDetector.features(in: ciImage)
+            
+            self.processing.value = false
+            
+            guard let result = results.first as? CIFaceFeature else {
+                return
+            }
+            
+            var faceDataList = [[String:Any]]()
+
+            var data = [String:Any]()
+            
+            data["boundingBox"] = self.formatBoundingBox(frame: result.bounds)
+           
+            if result.hasFaceAngle {
+                data["faceAngle"] = result.faceAngle
+            }
+            
+            faceDataList.append(data)
             
             if(faceDataList.count > 0) {
                 callback(["eventType": "faceDetection", "data": faceDataList])
             }
-          }
+        //}
+    }
+    
+    func rad2deg(_ number: NSNumber?) -> Double? {
+        if(number == nil) {
+            return nil
         }
-
-        let vnImage = VNImageRequestHandler(cvPixelBuffer: CMSampleBufferGetImageBuffer(imageBuffer)!, options: [:])
-        try? vnImage.perform([detectFaceRequest])
+        
+        return number!.doubleValue * 180 / .pi
+    }
+    
+    func rad2deg(_ number: Double) -> Double? {
+        return number * 180 / .pi
     }
     
     var name: String!
+    var width: CGFloat!
+    var height: CGFloat!
     
     var processing: Atomic<Bool>
     
-    init(name: String) {
+    init(name: String, width: CGFloat, height: CGFloat) {
         self.name = name
+        self.width = width
+        self.height = height
         self.processing = Atomic<Bool>(false)
     }
     

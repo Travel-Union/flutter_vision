@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter_vision/flutter_vision.dart';
 
 class FaceDetector {
@@ -11,6 +9,19 @@ class FaceDetector {
 
     _hasBeenOpened = true;
     return await FlutterVision.channel.invokeMethod<bool>('FaceDetector#start');
+  }
+
+  Future<String> startDetectionIOS(double width, double height) async {
+    assert(!_isClosed);
+
+    _hasBeenOpened = true;
+    return await FlutterVision.channel.invokeMethod<String>(
+      'FaceDetector#start',
+      <String, double>{
+        'width': width,
+        'height': height,
+      },
+    );
   }
 
   Future<bool> close() async {
@@ -40,6 +51,7 @@ class Face {
   final Position mouthRight;
   final Position noseBase;
   final BoundingBox boundingBox;
+  final double faceAngle;
 
   Face(dynamic _data)
       : rotY = _data['rotY'],
@@ -49,16 +61,29 @@ class Face {
         leftEyeOpen = _data['leftEyeOpen'],
         trackingId = _data['trackingId'],
         leftEye = _data['leftEye'] != null ? Position(_data['leftEye']) : null,
-        rightEye = _data['rightEye'] != null ? Position(_data['rightEye']) : null,
-        leftCheek = _data['leftCheek'] != null ? Position(_data['leftCheek']) : null,
-        rightCheek = _data['rightCheek'] != null ? Position(_data['rightCheek']) : null,
+        rightEye =
+            _data['rightEye'] != null ? Position(_data['rightEye']) : null,
+        leftCheek =
+            _data['leftCheek'] != null ? Position(_data['leftCheek']) : null,
+        rightCheek =
+            _data['rightCheek'] != null ? Position(_data['rightCheek']) : null,
         leftEar = _data['leftEar'] != null ? Position(_data['leftEar']) : null,
-        rightEar = _data['rightEar'] != null ? Position(_data['rightEar']) : null,
-        mouthLeft = _data['mouthLeft'] != null ? Position(_data['mouthLeft']) : null,
-        mouthBottom = _data['mouthBottom'] != null ? Position(_data['mouthBottom']) : null,
-        mouthRight = _data['mouthRight'] != null ? Position(_data['mouthRight']) : null,
-        noseBase = _data['noseBase'] != null ? Position(_data['noseBase']) : null,
-        boundingBox = _data['boundingBox'] != null && _data['boundingBox']['top'] != null ? BoundingBox.fromMap(_data['boundingBox']) : null;
+        rightEar =
+            _data['rightEar'] != null ? Position(_data['rightEar']) : null,
+        mouthLeft =
+            _data['mouthLeft'] != null ? Position(_data['mouthLeft']) : null,
+        mouthBottom = _data['mouthBottom'] != null
+            ? Position(_data['mouthBottom'])
+            : null,
+        mouthRight =
+            _data['mouthRight'] != null ? Position(_data['mouthRight']) : null,
+        noseBase =
+            _data['noseBase'] != null ? Position(_data['noseBase']) : null,
+        faceAngle = _data['faceAngle'],
+        boundingBox =
+            _data['boundingBox'] != null && _data['boundingBox']['top'] != null
+                ? BoundingBox.fromMap(_data['boundingBox'])
+                : null;
 
   static List<Face> fromList(List<dynamic> data) {
     return data.map((m) => Face(m)).toList();
@@ -82,11 +107,11 @@ class BoundingBox {
   final num width;
   final num height;
 
-  BoundingBox.fromMap(dynamic data) : 
-  left = data['left'],
-  top = data['top'],
-  width = data['width'],
-  height = data['height'];
+  BoundingBox.fromMap(dynamic data)
+      : left = data['left'],
+        top = data['top'],
+        width = data['width'],
+        height = data['height'];
 
   BoundingBox.fromLTWH(this.left, this.top, this.width, this.height);
 }

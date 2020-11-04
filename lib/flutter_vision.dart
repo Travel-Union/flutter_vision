@@ -180,6 +180,15 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     return await faceDetector.startDetection();
   }
 
+  Future<String> addFaceDetectorIOS(double width, double height) async {
+    if (!value.isInitialized) {
+      throw new Exception("MLVision isn't initialized yet.");
+    }
+
+    faceDetector = FaceDetector();
+    return await faceDetector.startDetectionIOS(width, height);
+  }
+
   Future<void> removeFaceDetector() async {
     if (!value.isInitialized) {
       throw new Exception("FirebaseVision isn't initialized yet.");
