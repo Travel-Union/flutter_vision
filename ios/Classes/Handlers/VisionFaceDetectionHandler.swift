@@ -10,7 +10,7 @@ import AVKit
 
 class VisionFaceDetectionHandler : ImageHandler {
     func onImage(imageBuffer: CMSampleBuffer, deviceOrientation: UIInterfaceOrientation, cameraPosition: AVCaptureDevice.Position, callback: @escaping (Dictionary<String, Any>) -> Void) {
-        /*if #available(iOS 12.0, *) {
+        if #available(iOS 12.0, *) {
             let detectFaceRequest = VNDetectFaceLandmarksRequest { (request, error) in
               self.processing.value = false
                 
@@ -47,7 +47,7 @@ class VisionFaceDetectionHandler : ImageHandler {
 
             let vnImage = VNImageRequestHandler(cvPixelBuffer: CMSampleBufferGetImageBuffer(imageBuffer)!, options: [:])
             try? vnImage.perform([detectFaceRequest])
-        } else {*/
+        } else {
             let pixelBuffer = CMSampleBufferGetImageBuffer(imageBuffer)!
             let ciImage = CIImage.init(cvImageBuffer: pixelBuffer, options: [:])
 
@@ -77,7 +77,7 @@ class VisionFaceDetectionHandler : ImageHandler {
             if(faceDataList.count > 0) {
                 callback(["eventType": "faceDetection", "data": faceDataList])
             }
-        //}
+        }
     }
     
     func rad2deg(_ number: NSNumber?) -> Double? {

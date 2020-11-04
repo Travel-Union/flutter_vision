@@ -61,24 +61,17 @@ class Face {
         leftEyeOpen = _data['leftEyeOpen'],
         trackingId = _data['trackingId'],
         leftEye = _data['leftEye'] != null ? Position(_data['leftEye']) : null,
-        rightEye =
-            _data['rightEye'] != null ? Position(_data['rightEye']) : null,
-        leftCheek =
-            _data['leftCheek'] != null ? Position(_data['leftCheek']) : null,
-        rightCheek =
-            _data['rightCheek'] != null ? Position(_data['rightCheek']) : null,
+        rightEye = _data['rightEye'] != null ? Position(_data['rightEye']) : null,
+        leftCheek = _data['leftCheek'] != null ? Position(_data['leftCheek']) : null,
+        rightCheek = _data['rightCheek'] != null ? Position(_data['rightCheek']) : null,
         leftEar = _data['leftEar'] != null ? Position(_data['leftEar']) : null,
-        rightEar =
-            _data['rightEar'] != null ? Position(_data['rightEar']) : null,
-        mouthLeft =
-            _data['mouthLeft'] != null ? Position(_data['mouthLeft']) : null,
+        rightEar = _data['rightEar'] != null ? Position(_data['rightEar']) : null,
+        mouthLeft = _data['mouthLeft'] != null ? Position(_data['mouthLeft']) : null,
         mouthBottom = _data['mouthBottom'] != null
             ? Position(_data['mouthBottom'])
             : null,
-        mouthRight =
-            _data['mouthRight'] != null ? Position(_data['mouthRight']) : null,
-        noseBase =
-            _data['noseBase'] != null ? Position(_data['noseBase']) : null,
+        mouthRight = _data['mouthRight'] != null ? Position(_data['mouthRight']) : null,
+        noseBase = _data['noseBase'] != null ? Position(_data['noseBase']) : null,
         faceAngle = _data['faceAngle'],
         boundingBox =
             _data['boundingBox'] != null && _data['boundingBox']['top'] != null
