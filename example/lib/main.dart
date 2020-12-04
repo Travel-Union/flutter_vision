@@ -1,15 +1,17 @@
-import 'dart:convert';
-import 'dart:math';
+import 'dart:io';
 import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_vision/barcode_detector.dart';
 import 'package:flutter_vision/face_detector.dart';
 import 'package:flutter_vision/flutter_vision.dart';
-import 'package:flutter_vision/barcode_detector.dart';
+import 'package:flutter_vision/models/available_device.dart';
+import 'package:flutter_vision/models/lens_direction.dart';
+import 'package:flutter_vision/models/resolution.dart';
 import 'package:flutter_vision/text_recognizer.dart';
+import 'package:flutter_vision/ui/camera_preview.dart';
 
 void main() {
   runApp(
@@ -45,28 +47,14 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       devices = await FlutterVision.availableCameras;
-      _controller = FlutterVision(
-          devices.firstWhere((c) => c.lensDirection == LensDirection.front),
-          Resolution.ultrahd);
-      await _controller.initialize();
 
-      await _controller.addFaceDetector();
-
-      _controller.subscribe().listen((data) {
-        if (data != null) {
-          if (data is List<Barcode>) {
-            data.forEach((b) => print("barcode: ${b.rawValue}"));
-          } else if (data is VisionText) {
-            print("text: ${data.text}");
-          } else if (data is List<Face>) {
-            if(data.length == 1) {
-              final face = data.first;
-
-              print(face?.boundingBox);
-            }
-          }
-        }
-      });
+      if (Platform.isIOS) {
+        _controller = FlutterVision(LensDirection.back, iOSResolution: Resolution.fullhd, devices: devices);
+        await _controller.initialize();
+        addTextRecognizer();
+      } else {
+        _controller = FlutterVision(LensDirection.back);
+      }
     } on PlatformException {
       print("error");
     }
@@ -77,6 +65,34 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {});
+  }
+
+  void _onPlatformViewCreated(int id) async {
+    if (_controller == null) {
+      return;
+    }
+    await _controller.initialize();
+    addTextRecognizer();
+  }
+
+  void addTextRecognizer() async {
+    await _controller.addTextRecognizer();
+    _controller.subscribe().listen((data) {
+      if (data != null) {
+        print(data);
+        if (data is List<Barcode>) {
+          data.forEach((b) => print("barcode: ${b.rawValue}"));
+        } else if (data is VisionText) {
+          print("text: ${data.text}");
+        } else if (data is List<Face>) {
+          if (data.length == 1) {
+            final face = data.first;
+
+            print(face?.boundingBox);
+          }
+        }
+      }
+    });
   }
 
   @override
@@ -96,10 +112,10 @@ class _MyAppState extends State<MyApp> {
           : Stack(
               fit: StackFit.expand,
               children: <Widget>[
-                CameraPreview(_controller),
+                CameraPreview(controller: _controller, onAndroidPlatformViewCreated: _onPlatformViewCreated),
                 FlatButton(
                   onPressed: () async {
-                    final img = await FlutterVision.capturePhoto;
+                    final img = await FlutterVision.capture;
 
                     if (img == null) return;
 

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter_vision/constants.dart';
 import 'package:flutter_vision/flutter_vision.dart';
 
 class BarcodeDetector {
@@ -9,7 +12,11 @@ class BarcodeDetector {
 
     _hasBeenOpened = true;
 
-    return await FlutterVision.channel.invokeMethod<bool>('BarcodeDetector#start');
+    if (Platform.isIOS) {
+      return await FlutterVision.channel.invokeMethod<bool>(MethodNames.addBarcodeDetector);
+    } else {
+      return await FlutterVision.cameraChannel.invokeMethod<bool>(MethodNames.addBarcodeDetector);
+    }
   }
 
   Future<bool> close() async {
@@ -17,7 +24,11 @@ class BarcodeDetector {
     if (_isClosed) return Future<bool>.value(true);
 
     _isClosed = true;
-    return await FlutterVision.channel.invokeMethod<bool>('BarcodeDetector#close');
+    if (Platform.isIOS) {
+      return await FlutterVision.channel.invokeMethod<bool>(MethodNames.closeBarcodeDetector);
+    } else {
+      return await FlutterVision.cameraChannel.invokeMethod<bool>(MethodNames.closeBarcodeDetector);
+    }
   }
 }
 

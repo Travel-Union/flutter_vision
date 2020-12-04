@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter_vision/constants.dart';
 import 'package:flutter_vision/flutter_vision.dart';
 
 class FaceDetector {
@@ -8,7 +11,7 @@ class FaceDetector {
     assert(!_isClosed);
 
     _hasBeenOpened = true;
-    return await FlutterVision.channel.invokeMethod<bool>('FaceDetector#start');
+    return await FlutterVision.cameraChannel.invokeMethod<bool>(MethodNames.addFaceDetector);
   }
 
   Future<String> startDetectionIOS(double width, double height) async {
@@ -16,7 +19,7 @@ class FaceDetector {
 
     _hasBeenOpened = true;
     return await FlutterVision.channel.invokeMethod<String>(
-      'FaceDetector#start',
+      MethodNames.addFaceDetector,
       <String, double>{
         'width': width,
         'height': height,
@@ -29,7 +32,12 @@ class FaceDetector {
     if (_isClosed) return Future<bool>.value(true);
 
     _isClosed = true;
-    return await FlutterVision.channel.invokeMethod<bool>('FaceDetector#close');
+
+    if (Platform.isIOS) {
+      return await FlutterVision.channel.invokeMethod<bool>(MethodNames.closeFaceDetector);
+    } else {
+      return await FlutterVision.cameraChannel.invokeMethod<bool>(MethodNames.closeFaceDetector);
+    }
   }
 }
 
@@ -67,16 +75,13 @@ class Face {
         leftEar = _data['leftEar'] != null ? Position(_data['leftEar']) : null,
         rightEar = _data['rightEar'] != null ? Position(_data['rightEar']) : null,
         mouthLeft = _data['mouthLeft'] != null ? Position(_data['mouthLeft']) : null,
-        mouthBottom = _data['mouthBottom'] != null
-            ? Position(_data['mouthBottom'])
-            : null,
+        mouthBottom = _data['mouthBottom'] != null ? Position(_data['mouthBottom']) : null,
         mouthRight = _data['mouthRight'] != null ? Position(_data['mouthRight']) : null,
         noseBase = _data['noseBase'] != null ? Position(_data['noseBase']) : null,
         faceAngle = _data['faceAngle'],
-        boundingBox =
-            _data['boundingBox'] != null && _data['boundingBox']['top'] != null
-                ? BoundingBox.fromMap(_data['boundingBox'])
-                : null;
+        boundingBox = _data['boundingBox'] != null && _data['boundingBox']['top'] != null
+            ? BoundingBox.fromMap(_data['boundingBox'])
+            : null;
 
   static List<Face> fromList(List<dynamic> data) {
     return data.map((m) => Face(m)).toList();

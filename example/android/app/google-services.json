@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "83847023934",
+    "firebase_url": "https://travelunion.firebaseio.com",
+    "project_id": "travelunion",
+    "storage_bucket": "travelunion.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:83847023934:android:d856e26a4fb4addc34306f",
+        "android_client_info": {
+          "package_name": "com.travelunion.flutter_vision_example"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "83847023934-ai9v2viedba7dngpuhom1ar8ja35utff.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.travelunion.flutter_vision_example",
+            "certificate_hash": "4ddc45cf6b47a6f1ec9a2b7a4114ab4ca083df3a"
+          }
+        },
+        {
+          "client_id": "83847023934-2c76r2qhtjftttppfbr7t0eab16vsspm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJJQ2xucdchwaG4NxX6vGWV_BQhR8yexI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "83847023934-2c76r2qhtjftttppfbr7t0eab16vsspm.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "83847023934-hk1acaoil6pddikk6q8493hs7tc8302k.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.travelunion.flutter_vision_example"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

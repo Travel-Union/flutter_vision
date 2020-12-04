@@ -5,7 +5,8 @@
 //  Created by Lukas Plachtinas on 2020-09-14.
 //
 
-import FirebaseMLVision
+import MLKitVision
+import MLKitTextRecognition
 import os.log
 import AVKit
 
@@ -16,11 +17,8 @@ class TextRecognitionHandler : ImageHandler {
             cameraPosition: cameraPosition
         )
         
-        let metadata = VisionImageMetadata()
-        metadata.orientation = orientation
-        
         let image = VisionImage(buffer: imageBuffer)
-        image.metadata = metadata
+        image.orientation = orientation
         
         self.textRecognizer.process(image) { result, error in
             self.processing.value = false
@@ -97,19 +95,18 @@ class TextRecognitionHandler : ImageHandler {
     
 
     
-    let textRecognizer: VisionTextRecognizer!
+    let textRecognizer: TextRecognizer!
     var name: String!
     var processing: Atomic<Bool>
     
     init(name: String) {
         self.name = name
         self.processing = Atomic<Bool>(false)
-        let vision = Vision.vision()
-        self.textRecognizer = vision.onDeviceTextRecognizer()
+        self.textRecognizer = TextRecognizer.textRecognizer()
     }
 }
 
-extension VisionTextRecognizedLanguage {
+extension TextRecognizedLanguage {
     func toString() -> String? {
         self.languageCode;
     }

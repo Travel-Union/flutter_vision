@@ -113,7 +113,11 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
                     camera!.handlers.append(BarcodeDetectorHandler(name: "BarcodeDetector"))
                     break
                 case "FaceDetector#start":
-                    guard let args = call.arguments else {
+                    camera!.handlers.append(FaceDetectionHandler(name: "FaceDetector"))
+                    result(UIDevice.current.systemVersion)
+                    return
+                    
+                    /*guard let args = call.arguments else {
                         result("no arguments found for method: (" + call.method + "). Arguments: 'width' and 'height' required.")
                         return
                     }
@@ -128,7 +132,7 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
                     } else {
                         result(false)
                         return
-                    }
+                    }*/
                     break
                 default:
                     result(false)
@@ -158,7 +162,7 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
             }
             
             break
-        case "retrieveLastFrame":
+        case "capture":
             if(camera?.pixelBuffer != nil) {
                 result(UIImage(pixelBuffer: camera!.pixelBuffer!)?.jpegData(compressionQuality: 1))
             } else {

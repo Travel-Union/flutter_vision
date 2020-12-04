@@ -15,10 +15,9 @@ A new flutter plugin project.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.dependency 'Firebase/MLVision'
-  s.dependency 'Firebase/MLVisionTextModel'
-  s.dependency 'Firebase/MLVisionBarcodeModel'
-  s.dependency 'Firebase/MLVisionFaceModel'
+  s.dependency 'GoogleMLKit/TextRecognition'
+  s.dependency 'GoogleMLKit/BarcodeScanning'
+  s.dependency 'GoogleMLKit/FaceDetection'
   s.platform = :ios, '10.0'
   s.static_framework = true
 

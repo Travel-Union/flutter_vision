@@ -5,7 +5,8 @@
 //  Created by Lukas Plachtinas on 2020-09-14.
 //
 
-import FirebaseMLVision
+import MLKitVision
+import MLKitBarcodeScanning
 import os.log
 import AVKit
 
@@ -16,13 +17,10 @@ class BarcodeDetectorHandler: ImageHandler {
             cameraPosition: cameraPosition
         )
         
-        let metadata = VisionImageMetadata()
-        metadata.orientation = orientation
-        
         let image = VisionImage(buffer: imageBuffer)
-        image.metadata = metadata
+        image.orientation = orientation
         
-        self.barcodeScanner.detect(in: image) { features, error in
+        self.barcodeScanner.process(image) { features, error in
             self.processing.value = false
             
             guard error == nil else {
@@ -50,14 +48,15 @@ class BarcodeDetectorHandler: ImageHandler {
     }
     
     
-    let barcodeScanner: VisionBarcodeDetector!
+    let barcodeScanner: BarcodeScanner!
     var name: String!
     var processing: Atomic<Bool>
     
     init(name: String) {
         self.name = name
         self.processing = Atomic<Bool>(false)
-        let vision = Vision.vision()
-        self.barcodeScanner = vision.barcodeDetector(options: VisionBarcodeDetectorOptions(formats: VisionBarcodeFormat.all))
+        
+        let barcodeOptions = BarcodeScannerOptions(formats: .all)
+        self.barcodeScanner = BarcodeScanner.barcodeScanner(options: barcodeOptions)
     }
 }

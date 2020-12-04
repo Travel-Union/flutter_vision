@@ -5,7 +5,6 @@
 //  Created by Lukas Plachtinas on 2020-09-14.
 //
 
-import FirebaseMLVision
 import AVKit
 
 protocol ImageHandler {

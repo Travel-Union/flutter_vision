@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'dart:ui';
 
+import 'package:flutter_vision/constants.dart';
 import 'package:flutter_vision/flutter_vision.dart';
 
 class TextRecognizer {
@@ -10,8 +12,11 @@ class TextRecognizer {
     assert(!_isClosed);
 
     _hasBeenOpened = true;
-    return await FlutterVision.channel
-        .invokeMethod<bool>('TextRecognizer#start');
+    if (Platform.isIOS) {
+      return await FlutterVision.channel.invokeMethod<bool>(MethodNames.addTextRegonizer);
+    } else {
+      return await FlutterVision.cameraChannel.invokeMethod<bool>(MethodNames.addTextRegonizer);
+    }
   }
 
   Future<bool> close() async {
@@ -19,16 +24,18 @@ class TextRecognizer {
     if (_isClosed) return Future<bool>.value(true);
 
     _isClosed = true;
-    return await FlutterVision.channel
-        .invokeMethod<bool>('TextRecognizer#close');
+    if (Platform.isIOS) {
+      return await FlutterVision.channel.invokeMethod<bool>(MethodNames.closeTextRegonizer);
+    } else {
+      return await FlutterVision.cameraChannel.invokeMethod<bool>(MethodNames.closeTextRegonizer);
+    }
   }
 }
 
 class VisionText {
   VisionText(Map<String, dynamic> data)
       : text = data['text'],
-        blocks = List<TextBlock>.unmodifiable(
-            data['blocks'].map<TextBlock>((dynamic block) => TextBlock(block)));
+        blocks = List<TextBlock>.unmodifiable(data['blocks'].map<TextBlock>((dynamic block) => TextBlock(block)));
 
   final String text;
   final List<TextBlock> blocks;

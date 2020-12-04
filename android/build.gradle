@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.0'
+        classpath 'com.android.tools.build:gradle:3.5.4'
     }
 }
 
@@ -30,15 +30,24 @@ android {
     lintOptions {
         disable 'InvalidPackage'
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 dependencies {
-    implementation 'com.google.android.gms:play-services-vision:20.1.1'
-    implementation 'com.google.android.gms:play-services-vision-common:19.1.1'
-    implementation "com.google.android.gms:play-services-vision-face-contour-internal:16.0.2"
-    implementation 'com.google.android.gms:play-services-vision-image-label:18.0.5'
-    implementation 'com.google.firebase:firebase-ml-vision:24.1.0'
-    implementation 'com.google.firebase:firebase-ml-vision-face-model:20.0.2'
-    implementation 'com.google.firebase:firebase-ml-model-interpreter:22.0.4'
-    implementation 'org.tensorflow:tensorflow-lite:2.0.0'
+    implementation 'com.google.mlkit:face-detection:16.0.2'
+    implementation 'com.google.mlkit:barcode-scanning:16.0.3'
+    implementation 'com.google.android.gms:play-services-mlkit-text-recognition:16.1.1'
+
+    // CameraX core library using the camera2 implementation
+    def camerax_version = "1.0.0-beta12"
+    // The following line is optional, as the core library is included indirectly by camera-camera2
+    implementation "androidx.camera:camera-core:1.0.0-beta12"
+    implementation "androidx.camera:camera-camera2:1.0.0-beta12"
+    // If you want to additionally use the CameraX Lifecycle library
+    implementation "androidx.camera:camera-lifecycle:1.0.0-beta12"
+    implementation "androidx.camera:camera-extensions:1.0.0-alpha19"
+    implementation"androidx.camera:camera-view:1.0.0-alpha19"
 }

@@ -8,8 +8,9 @@
 import Foundation
 import AVFoundation
 import os.log
-import FirebaseMLVision
 import Vision
+import Accelerate
+import CoreImage
 
 class MLCamera : NSObject {
     var captureDevice: AVCaptureDevice!
@@ -57,12 +58,12 @@ class MLCamera : NSObject {
         captureSession.addOutput(output)
         
         self.deviceOrientation = UIApplication.shared.statusBarOrientation
-        captureSession?.outputs.forEach {
+        /*captureSession?.outputs.forEach {
                 $0.connections.forEach {
                     $0.videoOrientation = self.mapOrientation(orientation: self.deviceOrientation)
                     $0.isVideoMirrored = self.capturePosition == AVCaptureDevice.Position.front
                 }
-            }
+            }*/
     }
     
     func start() {
@@ -154,7 +155,124 @@ extension MLCamera : FlutterTexture {
         if(pixelBuffer == nil){
             return nil
         }
-        return .passRetained(pixelBuffer!)
+        
+        let buffer = self.rotate90PixelBuffer(pixelBuffer!, factor: 0)
+        
+        if(buffer == nil) {
+            return nil
+        }
+        
+        return .passRetained(buffer!)
+    }
+    
+    func rotateBuffer(imageBuffer: CVPixelBuffer) -> CVPixelBuffer? {
+        CVPixelBufferLockBaseAddress(imageBuffer, .readOnly)
+        
+        let bytesPerRow = CVPixelBufferGetBytesPerRow(imageBuffer)
+        let width = CVPixelBufferGetWidth(imageBuffer)
+        let height =  CVPixelBufferGetHeight(imageBuffer)
+        
+        let sourceBuffer = CVPixelBufferGetBaseAddress(imageBuffer)
+        
+        let options: CFDictionary = [kCVPixelBufferCGImageCompatibilityKey as String: true,
+                                     kCVPixelBufferCGBitmapContextCompatibilityKey as String: true] as CFDictionary
+        
+        var _pixelBuffer: CVPixelBuffer? = nil
+        
+        let status = CVPixelBufferCreate(kCFAllocatorDefault, width, height, kCVPixelFormatType_32BGRA, options, &_pixelBuffer)
+        
+        if status == kCVReturnSuccess && _pixelBuffer != nil {
+            CVPixelBufferLockBaseAddress(_pixelBuffer!, .readOnly);
+            
+            let destinationBuffer = CVPixelBufferGetBaseAddress(_pixelBuffer!)
+            
+            if(destinationBuffer != nil) {
+                var source = UnsafePointer<Int>(bitPattern: Int(bitPattern: sourceBuffer))
+                var destination = UnsafePointer<Int>(bitPattern: Int(bitPattern: destinationBuffer))
+                
+                var count = (bytesPerRow * height) / 4
+                /*while count -= 1 {
+                            dest += 1 = src
+                            src += 1
+                        }
+                while count > 0 {
+                    destination+=1 = source
+                    source += 1
+                    count -= 1
+                }*/
+                
+                CVPixelBufferUnlockBaseAddress(_pixelBuffer!, .readOnly)
+                CVPixelBufferUnlockBaseAddress(imageBuffer, .readOnly)
+                return _pixelBuffer
+            }
+        }
+        
+        return nil
+    }
+    
+    func rotate90PixelBuffer(_ srcPixelBuffer: CVPixelBuffer, factor: UInt8) -> CVPixelBuffer? {
+      let flags = CVPixelBufferLockFlags(rawValue: 0)
+      guard kCVReturnSuccess == CVPixelBufferLockBaseAddress(srcPixelBuffer, flags) else {
+        return nil
+      }
+      defer { CVPixelBufferUnlockBaseAddress(srcPixelBuffer, flags) }
+
+      guard let srcData = CVPixelBufferGetBaseAddress(srcPixelBuffer) else {
+        print("Error: could not get pixel buffer base address")
+        return nil
+      }
+      let sourceWidth = CVPixelBufferGetWidth(srcPixelBuffer)
+      let sourceHeight = CVPixelBufferGetHeight(srcPixelBuffer)
+      var destWidth = sourceHeight
+      var destHeight = sourceWidth
+      var color = UInt8(0)
+
+      if factor % 2 == 0 {
+        destWidth = sourceWidth
+        destHeight = sourceHeight
+      }
+
+      let srcBytesPerRow = CVPixelBufferGetBytesPerRow(srcPixelBuffer)
+      var srcBuffer = vImage_Buffer(data: srcData,
+                                    height: vImagePixelCount(sourceHeight),
+                                    width: vImagePixelCount(sourceWidth),
+                                    rowBytes: srcBytesPerRow)
+
+      let destBytesPerRow = destWidth*4
+      guard let destData = malloc(destHeight*destBytesPerRow) else {
+        print("Error: out of memory")
+        return nil
+      }
+      var destBuffer = vImage_Buffer(data: destData,
+                                     height: vImagePixelCount(destHeight),
+                                     width: vImagePixelCount(destWidth),
+                                     rowBytes: destBytesPerRow)
+
+      let error = vImageRotate90_ARGB8888(&srcBuffer, &destBuffer, factor, &color, vImage_Flags(0))
+      if error != kvImageNoError {
+        print("Error:", error)
+        free(destData)
+        return nil
+      }
+
+      let releaseCallback: CVPixelBufferReleaseBytesCallback = { _, ptr in
+        if let ptr = ptr {
+          free(UnsafeMutableRawPointer(mutating: ptr))
+        }
+      }
+
+      let pixelFormat = CVPixelBufferGetPixelFormatType(srcPixelBuffer)
+      var dstPixelBuffer: CVPixelBuffer?
+      let status = CVPixelBufferCreateWithBytes(nil, destWidth, destHeight,
+                                                pixelFormat, destData,
+                                                destBytesPerRow, releaseCallback,
+                                                nil, nil, &dstPixelBuffer)
+      if status != kCVReturnSuccess {
+        print("Error: could not create new pixel buffer")
+        free(destData)
+        return nil
+      }
+      return dstPixelBuffer
     }
 }
 
@@ -165,8 +283,8 @@ extension MLCamera: AVCaptureVideoDataOutputSampleBufferDelegate {
             self.setDeviceOrientation()
         }
         
-        connection.videoOrientation = self.mapOrientation(orientation: deviceOrientation)
-        connection.isVideoMirrored = self.capturePosition == AVCaptureDevice.Position.front
+        //connection.videoOrientation = self.mapOrientation(orientation: deviceOrientation)
+        //connection.isVideoMirrored = self.capturePosition == AVCaptureDevice.Position.front
         
         pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
         textureRegistry.textureFrameAvailable(self.textureId)

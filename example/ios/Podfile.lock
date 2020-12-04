@@ -1,70 +1,23 @@
 PODS:
-  - Firebase/CoreOnly (6.32.0):
-    - FirebaseCore (= 6.10.2)
-  - Firebase/MLVision (6.32.0):
-    - Firebase/CoreOnly
-    - FirebaseMLVision (~> 0.21.0)
-  - Firebase/MLVisionBarcodeModel (6.32.0):
-    - Firebase/CoreOnly
-    - FirebaseMLVisionBarcodeModel (~> 0.21.0)
-  - Firebase/MLVisionFaceModel (6.32.0):
-    - Firebase/CoreOnly
-    - FirebaseMLVisionFaceModel (~> 0.21.0)
-  - Firebase/MLVisionTextModel (6.32.0):
-    - Firebase/CoreOnly
-    - FirebaseMLVisionTextModel (~> 0.21.0)
-  - FirebaseCore (6.10.2):
-    - FirebaseCoreDiagnostics (~> 1.6)
-    - GoogleUtilities/Environment (~> 6.7)
-    - GoogleUtilities/Logger (~> 6.7)
-  - FirebaseCoreDiagnostics (1.6.0):
-    - GoogleDataTransport (~> 7.2)
-    - GoogleUtilities/Environment (~> 6.7)
-    - GoogleUtilities/Logger (~> 6.7)
-    - nanopb (~> 1.30906.0)
-  - FirebaseInstallations (1.7.0):
-    - FirebaseCore (~> 6.10)
-    - GoogleUtilities/Environment (~> 6.7)
-    - GoogleUtilities/UserDefaults (~> 6.7)
-    - PromisesObjC (~> 1.2)
-  - FirebaseMLCommon (0.21.0):
-    - FirebaseCore (~> 6.9)
-    - FirebaseInstallations (~> 1.5)
-    - GoogleToolboxForMac/Logger (~> 2.1)
-    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
-    - "GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)"
-    - GoogleUtilities/UserDefaults (~> 6.0)
-    - GTMSessionFetcher/Core (~> 1.1)
-    - Protobuf (~> 3.12)
-  - FirebaseMLVision (0.21.0):
-    - FirebaseCore (~> 6.9)
-    - FirebaseMLCommon (~> 0.21)
-    - GoogleAPIClientForREST/Core (~> 1.3)
-    - GoogleAPIClientForREST/Vision (~> 1.3)
-    - GoogleToolboxForMac/Logger (~> 2.1)
-    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
-    - GTMSessionFetcher/Core (~> 1.1)
-    - Protobuf (~> 3.12)
-  - FirebaseMLVisionBarcodeModel (0.21.0):
-    - FirebaseMLVision (~> 0.21)
-  - FirebaseMLVisionFaceModel (0.21.0):
-    - FirebaseMLVision (~> 0.21)
-  - FirebaseMLVisionTextModel (0.21.0):
-    - FirebaseMLVision (~> 0.21)
   - Flutter (1.0.0)
   - flutter_vision (0.0.1):
-    - Firebase/MLVision
-    - Firebase/MLVisionBarcodeModel
-    - Firebase/MLVisionFaceModel
-    - Firebase/MLVisionTextModel
     - Flutter
-  - GoogleAPIClientForREST/Core (1.4.3):
-    - GTMSessionFetcher (>= 1.1.7)
-  - GoogleAPIClientForREST/Vision (1.4.3):
-    - GoogleAPIClientForREST/Core
-    - GTMSessionFetcher (>= 1.1.7)
+    - GoogleMLKit/BarcodeScanning
+    - GoogleMLKit/FaceDetection
+    - GoogleMLKit/TextRecognition
   - GoogleDataTransport (7.3.0):
     - nanopb (~> 1.30906.0)
+  - GoogleMLKit/BarcodeScanning (0.64.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitBarcodeScanning (~> 0.64.0)
+  - GoogleMLKit/FaceDetection (0.64.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitFaceDetection (~> 0.64.0)
+  - GoogleMLKit/MLKitCore (0.64.0):
+    - MLKitCommon (~> 0.64.0)
+  - GoogleMLKit/TextRecognition (0.64.0):
+    - GoogleMLKit/MLKitCore
+    - MLKitTextRecognition (~> 0.64.0)
   - GoogleToolboxForMac/DebugUtils (2.2.2):
     - GoogleToolboxForMac/Defines (= 2.2.2)
   - GoogleToolboxForMac/Defines (2.2.2)
@@ -83,11 +36,33 @@ PODS:
     - GoogleUtilities/Environment
   - GoogleUtilities/UserDefaults (6.7.2):
     - GoogleUtilities/Logger
-  - GTMSessionFetcher (1.4.0):
-    - GTMSessionFetcher/Full (= 1.4.0)
+  - GoogleUtilitiesComponents (1.0.0):
+    - GoogleUtilities/Logger
   - GTMSessionFetcher/Core (1.4.0)
-  - GTMSessionFetcher/Full (1.4.0):
-    - GTMSessionFetcher/Core (= 1.4.0)
+  - MLKitBarcodeScanning (0.64.0):
+    - MLKitCommon (~> 0.64)
+    - MLKitVision (~> 0.64)
+  - MLKitCommon (0.64.0):
+    - GoogleDataTransport (~> 7.0)
+    - GoogleToolboxForMac/Logger (~> 2.1)
+    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
+    - "GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)"
+    - GoogleUtilities/UserDefaults (~> 6.0)
+    - GoogleUtilitiesComponents (~> 1.0)
+    - GTMSessionFetcher/Core (~> 1.1)
+    - Protobuf (~> 3.12)
+  - MLKitFaceDetection (0.64.0):
+    - MLKitCommon (~> 0.64)
+    - MLKitVision (~> 0.64)
+  - MLKitTextRecognition (0.64.0):
+    - MLKitCommon (~> 0.64)
+    - MLKitVision (~> 0.64)
+  - MLKitVision (0.64.0):
+    - GoogleToolboxForMac/Logger (~> 2.1)
+    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
+    - GTMSessionFetcher/Core (~> 1.1)
+    - MLKitCommon (~> 0.64)
+    - Protobuf (~> 3.12)
   - nanopb (1.30906.0):
     - nanopb/decode (= 1.30906.0)
     - nanopb/encode (= 1.30906.0)
@@ -102,20 +77,17 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
-    - Firebase
-    - FirebaseCore
-    - FirebaseCoreDiagnostics
-    - FirebaseInstallations
-    - FirebaseMLCommon
-    - FirebaseMLVision
-    - FirebaseMLVisionBarcodeModel
-    - FirebaseMLVisionFaceModel
-    - FirebaseMLVisionTextModel
-    - GoogleAPIClientForREST
     - GoogleDataTransport
+    - GoogleMLKit
     - GoogleToolboxForMac
     - GoogleUtilities
+    - GoogleUtilitiesComponents
     - GTMSessionFetcher
+    - MLKitBarcodeScanning
+    - MLKitCommon
+    - MLKitFaceDetection
+    - MLKitTextRecognition
+    - MLKitVision
     - nanopb
     - PromisesObjC
     - Protobuf
@@ -127,26 +99,23 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_vision/ios"
 
 SPEC CHECKSUMS:
-  Firebase: afa030f17f5421810f379a42b0e5d3302d27eb26
-  FirebaseCore: 1d697bb944bf2af5fc248f1a66e165c9dd88bf97
-  FirebaseCoreDiagnostics: 7415bfb3883b3500c5a95c42b6ba66baae78f600
-  FirebaseInstallations: 466c7b4d1f58fe16707693091da253726a731ed2
-  FirebaseMLCommon: d218d75dd1c6c4e447f731ac22da56b88cb79431
-  FirebaseMLVision: 68dd092b4c52a7ac163ec0d4f541d5711fc9fec6
-  FirebaseMLVisionBarcodeModel: 394cd61c52dc03558088caf82b0dade8028f57d5
-  FirebaseMLVisionFaceModel: a67b2bf9b8407127a0bdb0ba98eb265637d1dc9d
-  FirebaseMLVisionTextModel: e9f3cba0f31022ae9dd3d246aff9849075cacd98
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_vision: 0004f8956ae8a9a49765fcf9e1901b09437509d9
-  GoogleAPIClientForREST: e2d95a611ac06a90d143c93bfd8597719f8b0938
+  flutter_vision: 77705457708d263be6aaadb2d8fe4612189ea4b2
   GoogleDataTransport: e85fb700c9b027079ce182c3d08e12e0f9618bb4
+  GoogleMLKit: 3c1f895592d95625eb57b8e66d4f13a5d36f9b49
   GoogleToolboxForMac: 800648f8b3127618c1b59c7f97684427630c5ea3
   GoogleUtilities: 7f2f5a07f888cdb145101d6042bc4422f57e70b3
+  GoogleUtilitiesComponents: a69c0b3b369ba443e988141e75ef49d9010b1c80
   GTMSessionFetcher: 6f5c8abbab8a9bce4bb3f057e317728ec6182b10
+  MLKitBarcodeScanning: 7b380e25719fb194292063e217c1ddbb0edbb506
+  MLKitCommon: dc2909c96dbf7f5a75b86a3d2fa1b92ff3f6a30b
+  MLKitFaceDetection: 502256dbfd3bad005f974dd022bc74a817fcd618
+  MLKitTextRecognition: 3ca1c65117899a7538d1f3c012c916ac1483698d
+  MLKitVision: bd96ec12ea19d589435523c914766538da259161
   nanopb: 59317e09cf1f1a0af72f12af412d54edf52603fc
   PromisesObjC: b14b1c6b68e306650688599de8a45e49fae81151
   Protobuf: 3dac39b34a08151c6d949560efe3f86134a3f748
 
 PODFILE CHECKSUM: fe0e1ee7f3d1f7d00b11b474b62dd62134535aea
 
-COCOAPODS: 1.10.0.beta.1
+COCOAPODS: 1.10.0

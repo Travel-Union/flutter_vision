@@ -5,8 +5,8 @@
 //  Created by Lukas Plachtinas on 2020-10-13.
 //
 
-import FirebaseMLVision
-import FirebaseMLCommon
+import MLKitVision
+import MLKitFaceDetection
 import os.log
 import AVKit
 
@@ -17,11 +17,28 @@ class FaceDetectionHandler : ImageHandler {
             cameraPosition: cameraPosition
         )
         
-        let metadata = VisionImageMetadata()
-        metadata.orientation = orientation
-        
         let image = VisionImage(buffer: imageBuffer)
-        image.metadata = metadata
+        image.orientation = orientation
+        
+        /*
+         case up = 0
+
+         case down = 1
+
+         case left = 2
+
+         case right = 3
+
+         case upMirrored = 4
+
+         case downMirrored = 5
+
+         case leftMirrored = 6
+
+         case rightMirrored = 7
+         */
+        
+        print(image.orientation.rawValue)
         
         self.faceDetector.process(image) { faces, error in
             self.processing.value = false
@@ -115,7 +132,7 @@ class FaceDetectionHandler : ImageHandler {
         }
     }
     
-    let faceDetector: VisionFaceDetector!
+    let faceDetector: FaceDetector!
     var name: String!
     
     var processing: Atomic<Bool>
@@ -123,20 +140,19 @@ class FaceDetectionHandler : ImageHandler {
     init(name: String) {
         self.name = name
         self.processing = Atomic<Bool>(false)
-        let vision = Vision.vision()
         
-        let options = VisionFaceDetectorOptions()
-        options.classificationMode = .all
+        let options = FaceDetectorOptions()
+        options.performanceMode = .accurate
         options.landmarkMode = .all
+        options.classificationMode = .all
         
-        self.faceDetector = vision.faceDetector(options: options)
+        self.faceDetector = FaceDetector.faceDetector(options: options)
     }
     
-    func getPosition(landmark: VisionFaceLandmark) -> [String:Any] {
+    func getPosition(landmark: FaceLandmark) -> [String:Any] {
         var result = [String:Any]()
         result["x"] = landmark.position.x
         result["y"] = landmark.position.y
-        result["z"] = landmark.position.z
         return result
     }
     
