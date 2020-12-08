@@ -136,6 +136,14 @@ public class FaceContourDetectionProcessor extends BaseImageAnalyzer<List<Face>>
         }
     }
 
+    /*private Float translateX(Float x) {
+        return x * _scaleX;
+    }
+
+    private Float translateY(Float y)  {
+        return y * _scaleY;
+    }*/
+
     private Map<String, Object> getPosition(PointF point) {
         Map<String, Object> result = new HashMap<>();
 

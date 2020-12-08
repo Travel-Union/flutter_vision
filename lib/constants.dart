@@ -14,4 +14,5 @@ class MethodNames {
   static const String closeTextRegonizer = "TextRecognizer#close";
   static const String addBarcodeDetector = "BarcodeDetector#start";
   static const String closeBarcodeDetector = "BarcodeDetector#close";
+  static const String dispose = "dispose";
 }

@@ -164,7 +164,11 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     super.dispose();
     if (_completer != null) {
       await _completer.future;
-      await channel.invokeMethod<bool>('dispose');
+      if(Platform.isIOS) {
+        await channel.invokeMethod<bool>(MethodNames.dispose);
+      } else {
+        await cameraChannel.invokeMethod<bool>(MethodNames.dispose);
+      }
       await _subscription?.cancel();
     }
   }

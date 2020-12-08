@@ -35,9 +35,13 @@ class TextRecognizer {
 class VisionText {
   VisionText(Map<String, dynamic> data)
       : text = data['text'],
+        width = data['width'],
+        height = data['height'],
         blocks = List<TextBlock>.unmodifiable(data['blocks'].map<TextBlock>((dynamic block) => TextBlock(block)));
 
   final String text;
+  final int width;
+  final int height;
   final List<TextBlock> blocks;
 }
 

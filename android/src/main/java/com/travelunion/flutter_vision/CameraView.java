@@ -69,7 +69,7 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
     Context context;
     Rational aspectRatio = new Rational(16,9);
     ProcessCameraProvider cameraProvider;
-    int CAMERA_REQUEST_ID = 513469796;
+    private static final int CAMERA_REQUEST_ID = 327123094;
     boolean torchMode = false;
     ImageAnalysis imageAnalysis;
     FaceContourDetectionProcessor faceDetector;
@@ -129,6 +129,7 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
 
         imageAnalysis = new ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .setTargetResolution(new Size(720,960))
                 .build();
 
         ImageCapture.Builder builder = new ImageCapture.Builder();
@@ -150,21 +151,8 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         reply.put("width", mPreviewView.getWidth());
         reply.put("height", mPreviewView.getHeight());
 
-        result.success(reply);
 
-        /*mPreviewView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                int height = mPreviewView.getHeight();
-                int width = mPreviewView.getWidth();
-                float x = motionEvent.getX();
-                float y = motionEvent.getY();
-                MeteringPoint meteringPoint = new DisplayOrientedMeteringPointFactory(mPreviewView.getDisplay(), camera.getCameraInfo(), width, height).createPoint(x, y);
-                FocusMeteringAction action = new FocusMeteringAction.Builder(meteringPoint).build();
-                cameraControl.startFocusAndMetering(action);
-                return false;
-            }
-        });*/
+        result.success(reply);
     }
 
     void captureImage(final MethodChannel.Result result){
@@ -186,11 +174,11 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                     @Override
                     public void run() {
                         @SuppressLint("UnsafeExperimentalUsageError")
-
                         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
                         byte[] bytes = new byte[buffer.capacity()];
                         buffer.get(bytes);
                         Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
+
                         ByteArrayOutputStream out = new ByteArrayOutputStream();
                         bitmapImage.compress(Bitmap.CompressFormat.JPEG, 90, out);
 
@@ -237,7 +225,7 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     plugin.activityPluginBinding.getActivity().requestPermissions(
                             new String[]{Manifest.permission.CAMERA},
-                            513469796);
+                            CAMERA_REQUEST_ID);
                     plugin.activityPluginBinding.addRequestPermissionsResultListener(new PluginRegistry.RequestPermissionsResultListener() {
                         @Override
                         public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
@@ -297,6 +285,9 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                 }
                 result.success(true);
                 break;
+            case MethodNames.dispose:
+                dispose();
+                result.success(true);
             default:
                 result.notImplemented();
         }

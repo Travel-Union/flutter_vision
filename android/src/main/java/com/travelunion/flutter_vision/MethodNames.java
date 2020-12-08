@@ -11,4 +11,5 @@ public class MethodNames {
     static final String closeTextRegonizer = "TextRecognizer#close";
     static final String addBarcodeDetector = "BarcodeDetector#start";
     static final String closeBarcodeDetector = "BarcodeDetector#close";
+    static final String dispose = "dispose";
 }

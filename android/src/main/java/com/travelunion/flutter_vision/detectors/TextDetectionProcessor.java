@@ -22,12 +22,18 @@ public class TextDetectionProcessor extends BaseImageAnalyzer<Text> {
     private final TextRecognizer recognizer = TextRecognition.getClient();
     private final TextDetectionProcessor.Result result;
 
+    private int imageHeight;
+    private int imageWidth;
+
     public TextDetectionProcessor(TextDetectionProcessor.Result result) {
         this.result = result;
     }
 
     @Override
     protected Task<Text> detectInImage(@NonNull InputImage image) {
+        this.imageHeight = image.getHeight();
+        this.imageWidth = image.getWidth();
+
         return recognizer.process(image);
     }
 
@@ -54,6 +60,8 @@ public class TextDetectionProcessor extends BaseImageAnalyzer<Text> {
 
         Map<String, Object> visionTextData = new HashMap<>();
         visionTextData.put("text", text);
+        visionTextData.put("width", this.imageWidth);
+        visionTextData.put("height", this.imageHeight);
 
         List<Map<String, Object>> allBlockData = new ArrayList<>();
         for (Text.TextBlock block : results.getTextBlocks()) {
