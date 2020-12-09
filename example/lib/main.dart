@@ -76,7 +76,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void addTextRecognizer() async {
-    //await _controller.addTextRecognizer();
+    await _controller.addTextRecognizer();
     _controller.subscribe().listen((data) {
       if (data != null) {
         print(data);

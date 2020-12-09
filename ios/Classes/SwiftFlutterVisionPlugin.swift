@@ -16,9 +16,9 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
     }
     
     public static func register(with registrar: FlutterPluginRegistrar) {
-        let channel = FlutterMethodChannel(name: "flutter_vision", binaryMessenger: registrar.messenger())
+        let channel = FlutterMethodChannel(name: Constants.methodChannelId, binaryMessenger: registrar.messenger())
         let instance = SwiftFlutterVisionPlugin(channel: channel, textureRegistry: registrar.textures())
-        let eventChannel = FlutterEventChannel(name: "flutter_vision/events", binaryMessenger: registrar.messenger())
+        let eventChannel = FlutterEventChannel(name: Constants.methodChannelId + "/events", binaryMessenger: registrar.messenger())
         
         registrar.addMethodCallDelegate(instance, channel: channel)
         eventChannel.setStreamHandler(instance)
@@ -26,7 +26,7 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
     
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         switch call.method {
-        case "availableCameras":
+        case MethodNames.availableCameras:
             let session: AVCaptureDevice.DiscoverySession = AVCaptureDevice.DiscoverySession.init(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified)
             
             result(session.devices.map{ (device) -> Dictionary<String, Any> in
@@ -55,7 +55,7 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
                 return dict
             })
             break
-        case "initialize":
+        case MethodNames.initialize:
             guard let args = call.arguments else {
                 result("no arguments found for method: (" + call.method + ")")
                 return
@@ -92,9 +92,9 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
                 result("'resolution' and 'deviceId' are required for method: (" + call.method + ")")
             }
             break
-        case "BarcodeDetector#start",
-             "TextRecognizer#start",
-             "FaceDetector#start":
+        case MethodNames.addBarcodeDetector,
+             MethodNames.addTextRegonizer,
+             MethodNames.addFaceDetector:
             guard camera != nil else {
                 result(false)
                 return
@@ -106,34 +106,16 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
             
             if(!contains) {
                 switch call.method {
-                case "TextRecognizer#start":
+                case MethodNames.addTextRegonizer:
                     camera!.handlers.append(TextRecognitionHandler(name: "TextRecognizer"))
                     break
-                case "BarcodeDetector#start":
+                case MethodNames.addBarcodeDetector:
                     camera!.handlers.append(BarcodeDetectorHandler(name: "BarcodeDetector"))
                     break
-                case "FaceDetector#start":
+                case MethodNames.addFaceDetector:
                     camera!.handlers.append(FaceDetectionHandler(name: "FaceDetector"))
                     result(UIDevice.current.systemVersion)
                     return
-                    
-                    /*guard let args = call.arguments else {
-                        result("no arguments found for method: (" + call.method + "). Arguments: 'width' and 'height' required.")
-                        return
-                    }
-                    
-                    if let myArgs = args as? [String: Any],
-                        let width = myArgs["width"] as? CGFloat,
-                        let height = myArgs["height"] as? CGFloat {
-                        
-                        camera!.handlers.append(VisionFaceDetectionHandler(name: "FaceDetector", width: width, height: height))
-                        result(UIDevice.current.systemVersion)
-                        return
-                    } else {
-                        result(false)
-                        return
-                    }*/
-                    break
                 default:
                     result(false)
                     return
@@ -142,9 +124,9 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
             
             result(true)
             break
-        case "BarcodeDetector#close",
-             "TextRecognizer#close",
-             "FaceDetector#close":
+        case MethodNames.closeBarcodeDetector,
+             MethodNames.closeTextRegonizer,
+             MethodNames.closeFaceDetector:
             guard camera != nil else {
                 result(false)
                 return
@@ -162,14 +144,14 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
             }
             
             break
-        case "capture":
+        case MethodNames.capture:
             if(camera?.pixelBuffer != nil) {
                 result(UIImage(pixelBuffer: camera!.pixelBuffer!)?.jpegData(compressionQuality: 1))
             } else {
                 result(nil)
             }
             break
-        case "dispose":
+        case MethodNames.dispose:
             camera?.stop()
             camera = nil
             result(true)

@@ -16,6 +16,7 @@ import android.util.Size;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
@@ -90,6 +91,7 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         mPreviewView.setMinimumHeight(100);
         mPreviewView.setMinimumWidth(100);
         mPreviewView.setContentDescription("Description Here");
+        mPreviewView.setScaleType(PreviewView.ScaleType.FIT_CENTER);
     }
 
     private void startCamera(final Context context, MethodChannel.Result result, final FlutterVisionPlugin plugin) {
@@ -120,7 +122,7 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         Preview.Builder previewBuilder = new Preview.Builder();
         @SuppressLint("RestrictedApi")
         Preview preview = previewBuilder
-                .setTargetResolution(new Size(width, (int) (width*16.0/9.0)))
+                .setTargetResolution(new Size(width, (int)(width * 4 / 3)))
                 .build();
 
         final CameraSelector cameraSelector = new CameraSelector.Builder()
@@ -135,7 +137,7 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         ImageCapture.Builder builder = new ImageCapture.Builder();
 
         imageCapture = builder
-                .setTargetResolution(new Size(1080,1920))
+                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .setTargetRotation(plugin.activityPluginBinding.getActivity().getWindowManager().getDefaultDisplay().getRotation())
                 .build();
 
@@ -150,7 +152,6 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         Map<String, Object> reply = new HashMap<>();
         reply.put("width", mPreviewView.getWidth());
         reply.put("height", mPreviewView.getHeight());
-
 
         result.success(reply);
     }
