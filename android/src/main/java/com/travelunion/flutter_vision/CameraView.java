@@ -8,7 +8,6 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
-import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
 import android.view.OrientationEventListener;
@@ -73,6 +72,7 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
     private static final int CAMERA_REQUEST_ID = 327123094;
     boolean torchMode = false;
     ImageAnalysis imageAnalysis;
+    OrientationEventListener orientationEventListener;
     FaceContourDetectionProcessor faceDetector;
     TextDetectionProcessor textRecognizer;
     BarcodeDetectionProcessor barcodeDetector;
@@ -142,7 +142,7 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                 .setTargetRotation(Surface.ROTATION_0)
                 .build();
 
-        OrientationEventListener orientationEventListener = new OrientationEventListener(context) {
+        orientationEventListener = new OrientationEventListener(context) {
             @Override
             public void onOrientationChanged(int orientation) {
                 int rotation;
@@ -158,7 +158,9 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                     rotation = Surface.ROTATION_0;
                 }
 
-                imageCapture.setTargetRotation(rotation);
+                if(imageCapture != null) {
+                    imageCapture.setTargetRotation(rotation);
+                }
             }
         };
 
@@ -312,19 +314,23 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
     public void dispose() {
         cameraProvider.unbindAll();
         cameraProvider.shutdown();
+        imageAnalysis.clearAnalyzer();
+        if(orientationEventListener != null) {
+            orientationEventListener.disable();
+            orientationEventListener = null;
+        }
         camera = null;
         imageCapture = null;
+        imageAnalysis = null;
     }
 
     @Override
     public void onListen(Object arguments, EventChannel.EventSink events) {
-        Log.d("CameraView", "Events assigned");
         this.eventSink = events;
     }
 
     @Override
     public void onCancel(Object arguments) {
-        Log.d("CameraView", "Events unassigned");
         this.eventSink = null;
     }
 
