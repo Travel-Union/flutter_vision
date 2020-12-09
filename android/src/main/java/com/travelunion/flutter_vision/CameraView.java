@@ -13,6 +13,8 @@ import android.os.Build;
 import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
+import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -91,7 +93,7 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         mPreviewView.setMinimumHeight(100);
         mPreviewView.setMinimumWidth(100);
         mPreviewView.setContentDescription("Description Here");
-        mPreviewView.setScaleType(PreviewView.ScaleType.FIT_CENTER);
+        mPreviewView.setScaleType(PreviewView.ScaleType.FIT_START);
     }
 
     private void startCamera(final Context context, MethodChannel.Result result, final FlutterVisionPlugin plugin) {
@@ -139,7 +141,30 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         imageCapture = builder
                 .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .setTargetRotation(plugin.activityPluginBinding.getActivity().getWindowManager().getDefaultDisplay().getRotation())
+                .setTargetRotation(Surface.ROTATION_0)
                 .build();
+
+        OrientationEventListener orientationEventListener = new OrientationEventListener(context) {
+            @Override
+            public void onOrientationChanged(int orientation) {
+                int rotation;
+
+                // Monitors orientation values to determine the target rotation value
+                if (orientation >= 45 && orientation < 135) {
+                    rotation = Surface.ROTATION_270;
+                } else if (orientation >= 135 && orientation < 225) {
+                    rotation = Surface.ROTATION_180;
+                } else if (orientation >= 225 && orientation < 315) {
+                    rotation = Surface.ROTATION_90;
+                } else {
+                    rotation = Surface.ROTATION_0;
+                }
+
+                imageCapture.setTargetRotation(rotation);
+            }
+        };
+
+        orientationEventListener.enable();
 
         preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
         imageCapture.setFlashMode(flashMode);
