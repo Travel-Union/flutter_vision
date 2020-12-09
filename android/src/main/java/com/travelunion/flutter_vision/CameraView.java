@@ -7,8 +7,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.AudioManager;
-import android.media.MediaActionSound;
 import android.os.Build;
 import android.util.Log;
 import android.util.Rational;
@@ -195,7 +193,6 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         imageCapture.takePicture(executor, new ImageCapture.OnImageCapturedCallback() {
             @Override
             public void onCaptureSuccess(@NonNull final ImageProxy image) {
-                playClickSound();
                 plugin.activityPluginBinding.getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -220,20 +217,6 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                 super.onError(exception);
             }
         });
-    }
-
-    void playClickSound(){
-        AudioManager audio = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        switch( audio.getRingerMode() ){
-            case AudioManager.RINGER_MODE_NORMAL:
-                MediaActionSound sound = new MediaActionSound();
-                sound.play(MediaActionSound.SHUTTER_CLICK);
-                break;
-            case AudioManager.RINGER_MODE_SILENT:
-                break;
-            case AudioManager.RINGER_MODE_VIBRATE:
-                break;
-        }
     }
 
     private void setLensFacing(String lensFacing){
