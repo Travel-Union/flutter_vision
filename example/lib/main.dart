@@ -83,7 +83,12 @@ class _MyAppState extends State<MyApp> {
         if (data is List<Barcode>) {
           data.forEach((b) => print("barcode: ${b.rawValue}"));
         } else if (data is VisionText) {
-          print("text: ${data.text}");
+          final visionText = data as VisionText;
+          if(visionText.text.contains("<<")){
+            print(visionText.height);
+            print(visionText.width);
+            print(visionText.text);
+          }
         } else if (data is List<Face>) {
           if (data.length == 1) {
             final face = data.first;

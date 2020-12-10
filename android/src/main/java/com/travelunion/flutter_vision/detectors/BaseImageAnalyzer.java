@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import Catalano.Imaging.Concurrent.Filters.Grayscale;
 import Catalano.Imaging.FastBitmap;
+import Catalano.Imaging.Filters.BradleyLocalThreshold;
 import Catalano.Imaging.Filters.ContrastCorrection;
 
 public abstract class BaseImageAnalyzer<T> implements ImageAnalysis.Analyzer {
@@ -56,6 +57,8 @@ public abstract class BaseImageAnalyzer<T> implements ImageAnalysis.Analyzer {
         cc.applyInPlace(bitmap);
         Grayscale g = new Grayscale();
         g.applyInPlace(bitmap);
+        BradleyLocalThreshold bradley = new BradleyLocalThreshold();
+        bradley.applyInPlace(bitmap);
 
         pendingTask = detectInImage(InputImage.fromBitmap(bitmap.toBitmap(), image.getImageInfo().getRotationDegrees()))
             .addOnSuccessListener(new OnSuccessListener<T>() {

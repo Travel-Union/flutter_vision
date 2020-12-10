@@ -268,7 +268,6 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
             case MethodNames.closeFaceDetector:
                 if(faceDetector != null) {
                     faceDetector.stop();
-                    imageAnalysis.clearAnalyzer();
                 }
                 result.success(true);
                 break;
@@ -280,7 +279,6 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
             case MethodNames.closeTextRegonizer:
                 if(textRecognizer != null) {
                     textRecognizer.stop();
-                    imageAnalysis.clearAnalyzer();
                 }
                 result.success(true);
                 break;
@@ -292,7 +290,6 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
             case MethodNames.closeBarcodeDetector:
                 if(barcodeDetector != null) {
                     barcodeDetector.stop();
-                    imageAnalysis.clearAnalyzer();
                 }
                 result.success(true);
                 break;
@@ -312,13 +309,18 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
     @SuppressLint("RestrictedApi")
     @Override
     public void dispose() {
+        if(imageAnalysis != null) {
+            imageAnalysis.clearAnalyzer();
+        }
+
         cameraProvider.unbindAll();
         cameraProvider.shutdown();
-        imageAnalysis.clearAnalyzer();
+
         if(orientationEventListener != null) {
             orientationEventListener.disable();
             orientationEventListener = null;
         }
+
         camera = null;
         imageCapture = null;
         imageAnalysis = null;
