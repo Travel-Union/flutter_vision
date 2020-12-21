@@ -169,8 +169,10 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
         imageCapture.setFlashMode(flashMode);
 
-        cameraProvider.unbindAll();
-        camera = cameraProvider.bindToLifecycle(((LifecycleOwner) plugin.activityPluginBinding.getActivity()), cameraSelector, preview, imageAnalysis, imageCapture);
+        if(cameraProvider != null) {
+            cameraProvider.unbindAll();
+            camera = cameraProvider.bindToLifecycle(((LifecycleOwner) plugin.activityPluginBinding.getActivity()), cameraSelector, preview, imageAnalysis, imageCapture);
+        }
 
         camera.getCameraControl().enableTorch(torchMode);
 
@@ -313,8 +315,10 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
             imageAnalysis.clearAnalyzer();
         }
 
-        cameraProvider.unbindAll();
-        cameraProvider.shutdown();
+        if(cameraProvider != null) {
+            cameraProvider.unbindAll();
+            cameraProvider.shutdown();
+        }
 
         if(orientationEventListener != null) {
             orientationEventListener.disable();
