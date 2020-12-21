@@ -37,18 +37,20 @@ android {
 }
 
 dependencies {
-    implementation 'com.google.mlkit:face-detection:16.0.2'
-    implementation 'com.google.mlkit:barcode-scanning:16.0.3'
-    implementation 'com.google.android.gms:play-services-mlkit-text-recognition:16.1.1'
+    implementation 'com.google.mlkit:face-detection:16.0.3'
+    implementation 'com.google.mlkit:barcode-scanning:16.1.0'
+    implementation 'com.google.android.gms:play-services-mlkit-text-recognition:16.1.2'
+    implementation 'com.google.android.gms:play-services-basement:17.5.0'
+    implementation 'com.google.firebase:firebase-analytics:18.0.0'
 
     // CameraX core library using the camera2 implementation
-    def camerax_version = "1.0.0-beta12"
+    def camerax_version = "1.0.0-rc01"
     // The following line is optional, as the core library is included indirectly by camera-camera2
-    implementation "androidx.camera:camera-core:1.0.0-beta12"
-    implementation "androidx.camera:camera-camera2:1.0.0-beta12"
+    implementation "androidx.camera:camera-core:1.0.0-rc01"
+    implementation "androidx.camera:camera-camera2:1.0.0-rc01"
     // If you want to additionally use the CameraX Lifecycle library
-    implementation "androidx.camera:camera-lifecycle:1.0.0-beta12"
-    implementation "androidx.camera:camera-extensions:1.0.0-alpha19"
-    implementation"androidx.camera:camera-view:1.0.0-alpha19"
+    implementation "androidx.camera:camera-lifecycle:1.0.0-rc01"
+    implementation "androidx.camera:camera-extensions:1.0.0-alpha20"
+    implementation"androidx.camera:camera-view:1.0.0-alpha20"
     implementation fileTree(dir: "libs", include: ["*.jar"])
 }

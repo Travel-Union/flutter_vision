@@ -44,23 +44,23 @@ public abstract class BaseImageAnalyzer<T> implements ImageAnalysis.Analyzer {
 
         Image mediaImage = image.getImage();
 
-        byte[] data = null;
-        data = NV21toJPEG(
-                YUV_420_888toNV21(mediaImage),
-                mediaImage.getWidth(), mediaImage.getHeight());
-        Bitmap bitmapImage = BitmapFactory.decodeByteArray(data, 0, data.length, null);
+        //byte[] data = null;
+        //data = NV21toJPEG(
+        //        YUV_420_888toNV21(mediaImage),
+        //        mediaImage.getWidth(), mediaImage.getHeight());
+        //Bitmap bitmapImage = BitmapFactory.decodeByteArray(data, 0, data.length, null);
 
-        bitmapImage = bitmapImage.copy(Bitmap.Config.ARGB_8888, true);
+        //bitmapImage = bitmapImage.copy(Bitmap.Config.ARGB_8888, true);
 
-        FastBitmap bitmap = new FastBitmap(bitmapImage);
-        ContrastCorrection cc = new ContrastCorrection();
-        cc.applyInPlace(bitmap);
-        Grayscale g = new Grayscale();
-        g.applyInPlace(bitmap);
-        BradleyLocalThreshold bradley = new BradleyLocalThreshold();
-        bradley.applyInPlace(bitmap);
+        //FastBitmap bitmap = new FastBitmap(bitmapImage);
+        //ContrastCorrection cc = new ContrastCorrection();
+        //cc.applyInPlace(bitmap);
+        //Grayscale g = new Grayscale();
+        //g.applyInPlace(bitmap);
+        //BradleyLocalThreshold bradley = new BradleyLocalThreshold();
+        //bradley.applyInPlace(bitmap);
 
-        pendingTask = detectInImage(InputImage.fromBitmap(bitmap.toBitmap(), image.getImageInfo().getRotationDegrees()))
+        pendingTask = detectInImage(InputImage.fromMediaImage(mediaImage, image.getImageInfo().getRotationDegrees()))
             .addOnSuccessListener(new OnSuccessListener<T>() {
                 @Override
                 public void onSuccess(T t) {

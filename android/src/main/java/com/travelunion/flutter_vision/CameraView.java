@@ -267,21 +267,9 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                 imageAnalysis.setAnalyzer(executor, faceDetector);
                 result.success(true);
                 break;
-            case MethodNames.closeFaceDetector:
-                if(faceDetector != null) {
-                    faceDetector.stop();
-                }
-                result.success(true);
-                break;
             case MethodNames.addTextRegonizer:
                 textRecognizer = new TextDetectionProcessor(this);
                 imageAnalysis.setAnalyzer(executor, textRecognizer);
-                result.success(true);
-                break;
-            case MethodNames.closeTextRegonizer:
-                if(textRecognizer != null) {
-                    textRecognizer.stop();
-                }
                 result.success(true);
                 break;
             case MethodNames.addBarcodeDetector:
@@ -289,10 +277,9 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                 imageAnalysis.setAnalyzer(executor, barcodeDetector);
                 result.success(true);
                 break;
+            case MethodNames.closeFaceDetector:
+            case MethodNames.closeTextRegonizer:
             case MethodNames.closeBarcodeDetector:
-                if(barcodeDetector != null) {
-                    barcodeDetector.stop();
-                }
                 result.success(true);
                 break;
             case MethodNames.dispose:
