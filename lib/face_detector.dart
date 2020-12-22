@@ -14,17 +14,11 @@ class FaceDetector {
     return await FlutterVision.cameraChannel.invokeMethod<bool>(MethodNames.addFaceDetector);
   }
 
-  Future<String> startDetectionIOS(double width, double height) async {
+  Future<String> startDetectionIOS() async {
     assert(!_isClosed);
 
     _hasBeenOpened = true;
-    return await FlutterVision.channel.invokeMethod<String>(
-      MethodNames.addFaceDetector,
-      <String, double>{
-        'width': width,
-        'height': height,
-      },
-    );
+    return await FlutterVision.channel.invokeMethod<String>(MethodNames.addFaceDetector);
   }
 
   Future<bool> close() async {
@@ -60,11 +54,15 @@ class Face {
   final Position noseBase;
   final BoundingBox boundingBox;
   final double faceAngle;
+  final int width;
+  final int height;
 
   Face(dynamic _data)
       : rotY = _data['rotY'],
         rotZ = _data['rotZ'],
         smile = _data['smile'],
+        width = _data['width'],
+        height = _data['height'],
         rightEyeOpen = _data['rightEyeOpen'],
         leftEyeOpen = _data['leftEyeOpen'],
         trackingId = _data['trackingId'],

@@ -23,20 +23,13 @@ class VisionFaceDetectionHandler : ImageHandler {
 
                 var data = [String:Any]()
                 
-                let transform = CGAffineTransform(scaleX: 1, y: -1)
-                  .translatedBy(x: 0,
-                                y: -self.height)
-                  let scale = CGAffineTransform.identity
-                    .scaledBy(x: self.width,
-                              y: self.height)
-                  let bounds = result.boundingBox
-                  .applying(scale).applying(transform)
-
-                
-                data["boundingBox"] = self.formatBoundingBox(frame: bounds)
+                data["boundingBox"] = self.formatBoundingBox(frame: result.boundingBox)
                 
                 data["rotY"] = self.rad2deg(result.yaw)
                 data["rotZ"] = self.rad2deg(result.roll)
+                
+                data["width"] = self.width
+                data["height"] = self.height
                 
                 faceDataList.append(data)
                 
@@ -44,8 +37,11 @@ class VisionFaceDetectionHandler : ImageHandler {
                     callback(["eventType": "faceDetection", "data": faceDataList])
                 }
             }
-
-            let vnImage = VNImageRequestHandler(cvPixelBuffer: CMSampleBufferGetImageBuffer(imageBuffer)!, options: [:])
+            
+            let pixelBuffer = CMSampleBufferGetImageBuffer(imageBuffer)!
+            self.width = CVPixelBufferGetWidth(pixelBuffer)
+            self.height = CVPixelBufferGetHeight(pixelBuffer)
+            let vnImage = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, options: [:])
             try? vnImage.perform([detectFaceRequest])
         } else {
             let pixelBuffer = CMSampleBufferGetImageBuffer(imageBuffer)!
@@ -93,15 +89,13 @@ class VisionFaceDetectionHandler : ImageHandler {
     }
     
     var name: String!
-    var width: CGFloat!
-    var height: CGFloat!
+    var width: Int?
+    var height: Int?
     
     var processing: Atomic<Bool>
     
-    init(name: String, width: CGFloat, height: CGFloat) {
+    init(name: String) {
         self.name = name
-        self.width = width
-        self.height = height
         self.processing = Atomic<Bool>(false)
     }
     

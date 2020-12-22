@@ -30,12 +30,18 @@ public class FaceContourDetectionProcessor extends BaseImageAnalyzer<List<Face>>
     private final FaceDetector detector = FaceDetection.getClient(options);
     private final FaceContourDetectionProcessor.Result result;
 
+    private int imageHeight;
+    private int imageWidth;
+
     public FaceContourDetectionProcessor(final FaceContourDetectionProcessor.Result result) {
         this.result = result;
     }
 
     @Override
     protected Task<List<Face>> detectInImage(@NonNull InputImage image) {
+        this.imageHeight = image.getHeight();
+        this.imageWidth = image.getWidth();
+
         return detector.process(image);
     }
 
@@ -109,6 +115,9 @@ public class FaceContourDetectionProcessor extends BaseImageAnalyzer<List<Face>>
             }
 
             faceMap.put("boundingBox", formatBoundingBox(face.getBoundingBox()));
+
+            faceMap.put("width", this.imageWidth);
+            faceMap.put("height", this.imageHeight);
 
             faceMap.put("smile", face.getSmilingProbability());
             faceMap.put("rightEyeOpen", face.getRightEyeOpenProbability());
