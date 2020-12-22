@@ -93,8 +93,7 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
             }
             break
         case MethodNames.addBarcodeDetector,
-             MethodNames.addTextRegonizer,
-             MethodNames.addFaceDetector:
+             MethodNames.addTextRegonizer:
             guard camera != nil else {
                 result(false)
                 return
@@ -112,10 +111,6 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
                 case MethodNames.addBarcodeDetector:
                     camera!.handlers.append(BarcodeDetectorHandler(name: "BarcodeDetector"))
                     break
-                case MethodNames.addFaceDetector:
-                    camera!.handlers.append(FaceDetectionHandler(name: "FaceDetector"))
-                    result(UIDevice.current.systemVersion)
-                    return
                 default:
                     result(false)
                     return
@@ -123,6 +118,22 @@ public class SwiftFlutterVisionPlugin: NSObject, FlutterPlugin {
             }
             
             result(true)
+            break
+        case MethodNames.addFaceDetector:
+            guard let args = call.arguments else {
+                result("no arguments found for method: (" + call.method + "). Arguments: 'width' and 'height' required.")
+                return
+            }
+            
+            if let myArgs = args as? [String: Any],
+                let width = myArgs["width"] as? CGFloat,
+                let height = myArgs["height"] as? CGFloat {
+
+                camera!.handlers.append(VisionFaceDetectionHandler(name: "FaceDetector", width: width, height: height))
+                result(UIDevice.current.systemVersion)
+            } else {
+                result(false)
+            }
             break
         case MethodNames.closeBarcodeDetector,
              MethodNames.closeTextRegonizer,
