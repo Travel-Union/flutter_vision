@@ -23,7 +23,20 @@ class VisionFaceDetectionHandler : ImageHandler {
 
                 var data = [String:Any]()
                 
-                data["boundingBox"] = self.formatBoundingBox(frame: result.boundingBox)
+                guard self.width != nil, self.height != nil else {
+                    return
+                }
+                
+                let transform = CGAffineTransform(scaleX: 1, y: -1)
+                  .translatedBy(x: 0,
+                                y: -(CGFloat)(self.height!))
+                  let scale = CGAffineTransform.identity
+                    .scaledBy(x: (CGFloat)(self.width!),
+                              y: (CGFloat)(self.height!))
+                  let bounds = result.boundingBox
+                  .applying(scale).applying(transform)
+
+                data["boundingBox"] = self.formatBoundingBox(frame: bounds)
                 
                 data["rotY"] = self.rad2deg(result.yaw)
                 data["rotZ"] = self.rad2deg(result.roll)
