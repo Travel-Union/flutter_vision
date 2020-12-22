@@ -8,7 +8,7 @@ class CameraPreviewIOS extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return controller.value.isInitialized
+    return controller != null && controller.value != null && controller.value.isInitialized
         ? AspectRatio(
             aspectRatio: controller.value.aspectRatio,
             child: Texture(textureId: controller.textureId),
