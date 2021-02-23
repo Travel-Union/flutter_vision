@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.os.Build;
 import android.util.Rational;
 import android.util.Size;
@@ -24,6 +26,7 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
@@ -94,7 +97,7 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         mPreviewView.setScaleType(PreviewView.ScaleType.FIT_START);
     }
 
-    private void startCamera(final Context context, MethodChannel.Result result, final FlutterVisionPlugin plugin) {
+    private void startCamera(final Context context, FlutterRequest myRequest, final FlutterVisionPlugin plugin) {
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(context);
 
         cameraProviderFuture.addListener(new Runnable() {
@@ -105,18 +108,18 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                         return;
                     cameraProvider = cameraProviderFuture.get();
 
-                    bindPreview(cameraProvider, result, plugin);
+                    bindPreview(cameraProvider, myRequest, plugin);
                 } catch (ExecutionException | InterruptedException e) {
                     // No errors need to be handled for this Future.
                     // This should never be reached.
-                    result.error("initialize", "Failed to initialize camera: " + e.getLocalizedMessage(), null);
+                    myRequest.reportError("initialize", "Failed to initialize camera: " + e.getLocalizedMessage(), null);
                 }
             }
         }, ContextCompat.getMainExecutor(context));
     }
 
     @SuppressLint({"ClickableViewAccessibility", "RestrictedApi"})
-    void bindPreview(@NonNull ProcessCameraProvider cameraProvider, MethodChannel.Result result, FlutterVisionPlugin plugin) {
+    void bindPreview(@NonNull ProcessCameraProvider cameraProvider, FlutterRequest myRequest, FlutterVisionPlugin plugin) {
         int width = Resources.getSystem().getDisplayMetrics().widthPixels;
 
         Preview.Builder previewBuilder = new Preview.Builder();
@@ -180,10 +183,10 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         reply.put("width", mPreviewView.getWidth());
         reply.put("height", mPreviewView.getHeight());
 
-        result.success(reply);
+        myRequest.submit(reply);
     }
 
-    void captureImage(final MethodChannel.Result result){
+    void captureImage(final FlutterRequest myRequest){
         imageCapture.setFlashMode(flashMode);
 
         float x = (float) (mPreviewView.getHeight() * 0.25);
@@ -206,10 +209,12 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                         buffer.get(bytes);
                         Bitmap bitmapImage = BitmapFactory.decodeByteArray(bytes, 0, bytes.length, null);
 
-                        ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        bitmapImage.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                        Bitmap rotated = rotateImageIfRequired(bitmapImage, image.getImageInfo());
 
-                        result.success(out.toByteArray());
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        rotated.compress(Bitmap.CompressFormat.JPEG, 90, out);
+
+                        myRequest.submit(out.toByteArray());
                         image.close();
                     }
                 });
@@ -227,11 +232,36 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
         this.lensFacing = Utils.getLensFacingFromString(lensFacing);
     }
 
+    private static Bitmap rotateImageIfRequired(Bitmap img, ImageInfo imageInfo) {
+        int orientation = imageInfo.getRotationDegrees();
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                return rotateImage(img, 90);
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                return rotateImage(img, 180);
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                return rotateImage(img, 270);
+            default:
+                return img;
+        }
+    }
+
+    private static Bitmap rotateImage(Bitmap img, int degree) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(degree);
+        Bitmap rotatedImg = Bitmap.createBitmap(img, 0, 0, img.getWidth(), img.getHeight(), matrix, true);
+        img.recycle();
+        return rotatedImg;
+    }
+
     @Override
     public void onMethodCall(MethodCall call, @NonNull MethodChannel.Result result) {
+        final FlutterRequest myRequest = new FlutterRequest(call, result);
+
         switch ((String)(call.method)) {
             case MethodNames.capture:
-                captureImage(result);
+                captureImage(myRequest);
                 break;
             case MethodNames.initialize:
                 setLensFacing((String)call.argument("lensFacing"));
@@ -243,50 +273,50 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                         @Override
                         public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
                             if(requestCode==CAMERA_REQUEST_ID && grantResults[0]==PackageManager.PERMISSION_GRANTED) {
-                                startCamera(context, result, plugin);
+                                startCamera(context, myRequest, plugin);
                             } else {
-                                result.error("initialize", "Failed to initialize camera due to permissions not being granted.", null);
+                                myRequest.reportError("initialize", "Failed to initialize camera due to permissions not being granted.", null);
                             }
                             return false;
                         }
                     });
                 } else {
-                    result.error("initialize", "Failed to initialize because Android M is required to operate.", null);
+                    myRequest.reportError("initialize", "Failed to initialize because Android M is required to operate.", null);
                 }
                 break;
             case MethodNames.setAspectRatio:
                 try {
                     aspectRatio = new Rational((int)(call.argument("num")), (int)(call.argument("denom")));
-                    result.success(true);
+                    myRequest.submit(true);
                 }catch (Exception e){
-                    result.error("-2","Invalid Aspect Ratio","Invalid Aspect Ratio");
+                    myRequest.reportError("-2","Invalid Aspect Ratio","Invalid Aspect Ratio");
                 }
                 break;
             case MethodNames.addFaceDetector:
                 faceDetector = new FaceContourDetectionProcessor(this);
                 imageAnalysis.setAnalyzer(executor, faceDetector);
-                result.success(true);
+                myRequest.submit(true);
                 break;
             case MethodNames.addTextRegonizer:
                 textRecognizer = new TextDetectionProcessor(this);
                 imageAnalysis.setAnalyzer(executor, textRecognizer);
-                result.success(true);
+                myRequest.submit(true);
                 break;
             case MethodNames.addBarcodeDetector:
                 barcodeDetector = new BarcodeDetectionProcessor(this);
                 imageAnalysis.setAnalyzer(executor, barcodeDetector);
-                result.success(true);
+                myRequest.submit(true);
                 break;
             case MethodNames.closeFaceDetector:
             case MethodNames.closeTextRegonizer:
             case MethodNames.closeBarcodeDetector:
-                result.success(true);
+                myRequest.submit(true);
                 break;
             case MethodNames.dispose:
                 dispose();
-                result.success(true);
+                myRequest.submit(true);
             default:
-                result.notImplemented();
+                myRequest.notImplemented();
         }
     }
 
