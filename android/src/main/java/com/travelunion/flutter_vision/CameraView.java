@@ -104,8 +104,11 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
             @Override
             public void run() {
                 try {
-                    if(cameraProvider!=null)
+                    if(cameraProvider==null) {
+                        myRequest.reportError("initialize", "Failed to initialize camera: cameraProvider was null", null);
                         return;
+                    }
+
                     cameraProvider = cameraProviderFuture.get();
 
                     bindPreview(cameraProvider, myRequest, plugin);
