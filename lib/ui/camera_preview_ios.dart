@@ -4,14 +4,14 @@ import 'package:flutter_vision/flutter_vision.dart';
 class CameraPreviewIOS extends StatelessWidget {
   const CameraPreviewIOS(this.controller);
 
-  final FlutterVision controller;
+  final FlutterVision? controller;
 
   @override
   Widget build(BuildContext context) {
-    return controller != null && controller.value != null && controller.value.isInitialized
+    return controller != null && controller!.value != null && controller!.value.isInitialized!
         ? AspectRatio(
-            aspectRatio: controller.value.aspectRatio,
-            child: Texture(textureId: controller.textureId),
+            aspectRatio: controller!.value.aspectRatio,
+            child: Texture(textureId: controller!.textureId!),
           )
         : Container();
   }

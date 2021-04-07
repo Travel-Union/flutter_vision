@@ -6,29 +6,29 @@ class CameraValue {
   const CameraValue.uninitialized() : this(isInitialized: false);
 
   /// True after [FirebaseVision.initialize] has completed successfully.
-  final bool isInitialized;
+  final bool? isInitialized;
 
-  final String errorDescription;
+  final String? errorDescription;
 
   /// The size of the preview in pixels.
   ///
   /// Is `null` until  [isInitialized] is `true`.
-  final Size previewSize;
+  final Size? previewSize;
 
   /// Convenience getter for `previewSize.height / previewSize.width`.
   ///
   /// Can only be called when [initialize] is done.
-  double get aspectRatio => previewSize.height / previewSize.width;
+  double get aspectRatio => previewSize!.height / previewSize!.width;
 
   bool get hasError => errorDescription != null;
 
   CameraValue copyWith({
-    bool isInitialized,
-    bool isRecordingVideo,
-    bool isTakingPicture,
-    bool isStreamingImages,
-    String errorDescription,
-    Size previewSize,
+    bool? isInitialized,
+    bool? isRecordingVideo,
+    bool? isTakingPicture,
+    bool? isStreamingImages,
+    String? errorDescription,
+    Size? previewSize,
   }) {
     return CameraValue(
       isInitialized: isInitialized ?? this.isInitialized,

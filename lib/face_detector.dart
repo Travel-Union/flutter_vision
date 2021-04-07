@@ -7,21 +7,21 @@ class FaceDetector {
   bool _hasBeenOpened = false;
   bool _isClosed = false;
 
-  Future<bool> startDetection() async {
+  Future<bool?> startDetection() async {
     assert(!_isClosed);
 
     _hasBeenOpened = true;
     return await FlutterVision.cameraChannel.invokeMethod<bool>(MethodNames.addFaceDetector);
   }
 
-  Future<String> startDetectionIOS() async {
+  Future<String?> startDetectionIOS() async {
     assert(!_isClosed);
 
     _hasBeenOpened = true;
     return await FlutterVision.channel.invokeMethod<String>(MethodNames.addFaceDetector);
   }
 
-  Future<bool> close() async {
+  Future<bool?> close() async {
     if (!_hasBeenOpened) _isClosed = true;
     if (_isClosed) return Future<bool>.value(true);
 
@@ -36,26 +36,26 @@ class FaceDetector {
 }
 
 class Face {
-  final double rotY;
-  final double rotZ;
-  final double smile;
-  final double rightEyeOpen;
-  final double leftEyeOpen;
-  final int trackingId;
-  final Position leftEye;
-  final Position rightEye;
-  final Position leftCheek;
-  final Position rightCheek;
-  final Position leftEar;
-  final Position rightEar;
-  final Position mouthLeft;
-  final Position mouthBottom;
-  final Position mouthRight;
-  final Position noseBase;
-  final BoundingBox boundingBox;
-  final double faceAngle;
-  final int width;
-  final int height;
+  final double? rotY;
+  final double? rotZ;
+  final double? smile;
+  final double? rightEyeOpen;
+  final double? leftEyeOpen;
+  final int? trackingId;
+  final Position? leftEye;
+  final Position? rightEye;
+  final Position? leftCheek;
+  final Position? rightCheek;
+  final Position? leftEar;
+  final Position? rightEar;
+  final Position? mouthLeft;
+  final Position? mouthBottom;
+  final Position? mouthRight;
+  final Position? noseBase;
+  final BoundingBox? boundingBox;
+  final double? faceAngle;
+  final int? width;
+  final int? height;
 
   Face(dynamic _data)
       : rotY = _data['rotY'],
@@ -87,9 +87,9 @@ class Face {
 }
 
 class Position {
-  final double x;
-  final double y;
-  final double z;
+  final double? x;
+  final double? y;
+  final double? z;
 
   Position(dynamic data)
       : x = data["x"],
@@ -98,10 +98,10 @@ class Position {
 }
 
 class BoundingBox {
-  final num left;
-  final num top;
-  final num width;
-  final num height;
+  final num? left;
+  final num? top;
+  final num? width;
+  final num? height;
 
   BoundingBox.fromMap(dynamic data)
       : left = data['left'],

@@ -3,10 +3,10 @@ import 'package:flutter_vision/constants.dart';
 import 'package:flutter_vision/flutter_vision.dart';
 
 class CameraPreviewAndroid extends StatefulWidget {
-  const CameraPreviewAndroid({Key key, this.controller, this.onPlatformViewCreated}) : super(key: key);
+  const CameraPreviewAndroid({Key? key, this.controller, this.onPlatformViewCreated}) : super(key: key);
 
-  final FlutterVision controller;
-  final Function(int id) onPlatformViewCreated;
+  final FlutterVision? controller;
+  final Function(int id)? onPlatformViewCreated;
 
   @override
   _CameraPreviewAndroidState createState() => _CameraPreviewAndroidState();

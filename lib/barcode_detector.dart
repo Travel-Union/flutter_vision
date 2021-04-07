@@ -7,7 +7,7 @@ class BarcodeDetector {
   bool _hasBeenOpened = false;
   bool _isClosed = false;
 
-  Future<bool> startDetection() async {
+  Future<bool?> startDetection() async {
     assert(!_isClosed);
 
     _hasBeenOpened = true;
@@ -19,7 +19,7 @@ class BarcodeDetector {
     }
   }
 
-  Future<bool> close() async {
+  Future<bool?> close() async {
     if (!_hasBeenOpened) _isClosed = true;
     if (_isClosed) return Future<bool>.value(true);
 
@@ -41,7 +41,7 @@ class Barcode {
     return data.map((m) => Barcode(m)).toList();
   }
 
-  final String rawValue;
+  final String? rawValue;
 
-  final String displayValue;
+  final String? displayValue;
 }

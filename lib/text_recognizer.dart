@@ -8,7 +8,7 @@ class TextRecognizer {
   bool _hasBeenOpened = false;
   bool _isClosed = false;
 
-  Future<bool> startDetection() async {
+  Future<bool?> startDetection() async {
     assert(!_isClosed);
 
     _hasBeenOpened = true;
@@ -19,7 +19,7 @@ class TextRecognizer {
     }
   }
 
-  Future<bool> close() async {
+  Future<bool?> close() async {
     if (!_hasBeenOpened) _isClosed = true;
     if (_isClosed) return Future<bool>.value(true);
 
@@ -39,9 +39,9 @@ class VisionText {
         height = data['height'],
         blocks = List<TextBlock>.unmodifiable(data['blocks'].map<TextBlock>((dynamic block) => TextBlock(block)));
 
-  final String text;
-  final int width;
-  final int height;
+  final String? text;
+  final int? width;
+  final int? height;
   final List<TextBlock> blocks;
 }
 
@@ -70,9 +70,9 @@ abstract class TextContainer {
             : [],
         text = data['text'];
 
-  final Rect boundingBox;
+  final Rect? boundingBox;
   final List<RecognizedLanguage> recognizedLanguages;
-  final String text;
+  final String? text;
 }
 
 class TextBlock extends TextContainer {

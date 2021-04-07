@@ -18,7 +18,7 @@ extension LensDirectionSerializer on LensDirection {
 }
 
 class LensDirectionHelper {
-  static LensDirection parse(String val) {
+  static LensDirection parse(String? val) {
     switch (val) {
       case 'front':
         return LensDirection.front;

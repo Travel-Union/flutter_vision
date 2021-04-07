@@ -3,8 +3,8 @@ import 'package:flutter_vision/models/lens_direction.dart';
 class AvailableDevice {
   AvailableDevice({this.id, this.lensDirection, this.sensorOrientation});
 
-  final String id;
-  final LensDirection lensDirection;
+  final String? id;
+  final LensDirection? lensDirection;
 
   /// Clockwise angle through which the output image needs to be rotated to be upright on the device screen in its native orientation.
   ///
@@ -13,7 +13,7 @@ class AvailableDevice {
   ///
   /// On Android, also defines the direction of rolling shutter readout, which
   /// is from top to bottom in the sensor's coordinate system.
-  final int sensorOrientation;
+  final int? sensorOrientation;
 
   @override
   bool operator ==(Object o) {

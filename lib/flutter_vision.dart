@@ -18,17 +18,17 @@ class FlutterVision extends ValueNotifier<CameraValue> {
   static const MethodChannel cameraChannel = const MethodChannel('${CameraConstants.methodChannelId}_0');
 
   final Resolution iOSResolution;
-  final List<AvailableDevice> devices;
+  final List<AvailableDevice>? devices;
   final LensDirection lensDirection;
 
-  TextRecognizer textRecognizer;
-  BarcodeDetector barcodeDetector;
-  FaceDetector faceDetector;
+  late TextRecognizer textRecognizer;
+  late BarcodeDetector barcodeDetector;
+  late FaceDetector faceDetector;
 
-  int textureId;
-  Completer<void> _completer;
+  int? textureId;
+  Completer<void>? _completer;
   bool _isDisposed = false;
-  StreamSubscription<dynamic> _subscription;
+  StreamSubscription<dynamic>? _subscription;
 
   FlutterVision(this.lensDirection, {this.iOSResolution = Resolution.fullhd, this.devices})
       : super(const CameraValue.uninitialized());
@@ -41,10 +41,10 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     }
   }
 
-  static Future<List<AvailableDevice>> get availableCameras async {
+  static Future<List<AvailableDevice>?> get availableCameras async {
     try {
       final List<Map<dynamic, dynamic>> cameras =
-          await channel.invokeListMethod<Map<dynamic, dynamic>>(MethodNames.availableCameras);
+          await (channel.invokeListMethod<Map<dynamic, dynamic>>(MethodNames.availableCameras) as FutureOr<List<Map<dynamic, dynamic>>>);
 
       return cameras.map((Map<dynamic, dynamic> camera) {
         return AvailableDevice(
@@ -59,7 +59,7 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     }
   }
 
-  static Future<Uint8List> get capture async {
+  static Future<Uint8List?> get capture async {
     if (Platform.isIOS) {
       return await _captureIOS();
     } else {
@@ -68,10 +68,10 @@ class FlutterVision extends ValueNotifier<CameraValue> {
   }
 
   Future<void> _initializeAndroid() async {
-    final Map<String, dynamic> result = await cameraChannel.invokeMapMethod<String, dynamic>(
+    final Map<String, dynamic> result = await (cameraChannel.invokeMapMethod<String, dynamic>(
       MethodNames.initialize,
       <String, dynamic>{'lensFacing': lensDirection.serialize()},
-    );
+    ) as FutureOr<Map<String, dynamic>>);
 
     value = value.copyWith(
         isInitialized: true,
@@ -89,13 +89,13 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     try {
       _completer = Completer<void>();
 
-      final Map<String, dynamic> result = await channel.invokeMapMethod<String, dynamic>(
+      final Map<String, dynamic> result = await (channel.invokeMapMethod<String, dynamic>(
         MethodNames.initialize,
         <String, dynamic>{
           'deviceId': devices?.firstWhere((element) => element.lensDirection == lensDirection)?.id,
           'resolution': iOSResolution.serialize(),
         },
-      );
+      ) as FutureOr<Map<String, dynamic>>);
 
       textureId = result['textureId'];
 
@@ -112,12 +112,12 @@ class FlutterVision extends ValueNotifier<CameraValue> {
 
     _initializeStream();
 
-    _completer.complete();
+    _completer!.complete();
 
-    return _completer.future;
+    return _completer!.future;
   }
 
-  static Future<Uint8List> _captureAndroid() async {
+  static Future<Uint8List?> _captureAndroid() async {
     try {
       return await cameraChannel.invokeMethod<Uint8List>(MethodNames.capture);
     } on PlatformException catch (e) {
@@ -126,7 +126,7 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     }
   }
 
-  static Future<Uint8List> _captureIOS() async {
+  static Future<Uint8List?> _captureIOS() async {
     try {
       return await channel.invokeMethod<Uint8List>(MethodNames.capture);
     } on PlatformException catch (e) {
@@ -140,12 +140,12 @@ class FlutterVision extends ValueNotifier<CameraValue> {
   }
 
   void _onEvent(dynamic event) {
-    final Map<dynamic, dynamic> map = event;
+    final Map<dynamic, dynamic>? map = event;
     if (_isDisposed) {
       return;
     }
 
-    switch (map['eventType']) {
+    switch (map!['eventType']) {
       case 'error':
         value = value.copyWith(errorDescription: event['errorDescription']);
         break;
@@ -163,7 +163,7 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     _isDisposed = true;
     super.dispose();
     if (_completer != null) {
-      await _completer.future;
+      await _completer!.future;
       if(Platform.isIOS) {
         await channel.invokeMethod<bool>(MethodNames.dispose);
       } else {
@@ -173,8 +173,8 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     }
   }
 
-  Future<bool> addTextRecognizer() async {
-    if (!value.isInitialized) {
+  Future<bool?> addTextRecognizer() async {
+    if (!value.isInitialized!) {
       throw new Exception("MLVision isn't initialized yet.");
     }
 
@@ -183,14 +183,14 @@ class FlutterVision extends ValueNotifier<CameraValue> {
   }
 
   Future<void> removeTextRecognizer() async {
-    if (!value.isInitialized) {
+    if (!value.isInitialized!) {
       throw new Exception("FirebaseVision isn't initialized yet.");
     }
     await textRecognizer.close();
   }
 
-  Future<bool> addBarcodeDetector() async {
-    if (!value.isInitialized) {
+  Future<bool?> addBarcodeDetector() async {
+    if (!value.isInitialized!) {
       throw new Exception("FirebaseVision isn't initialized yet.");
     }
 
@@ -198,16 +198,16 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     return await barcodeDetector.startDetection();
   }
 
-  Future<bool> removeBarcodeDetector() async {
-    if (!value.isInitialized) {
+  Future<bool?> removeBarcodeDetector() async {
+    if (!value.isInitialized!) {
       throw new Exception("FirebaseVision isn't initialized yet.");
     }
 
     return await barcodeDetector.close();
   }
 
-  Future<bool> addFaceDetector() async {
-    if (!value.isInitialized) {
+  Future<bool?> addFaceDetector() async {
+    if (!value.isInitialized!) {
       throw new Exception("MLVision isn't initialized yet.");
     }
 
@@ -215,8 +215,8 @@ class FlutterVision extends ValueNotifier<CameraValue> {
     return await faceDetector.startDetection();
   }
 
-  Future<String> addFaceDetectorIOS() async {
-    if (!value.isInitialized) {
+  Future<String?> addFaceDetectorIOS() async {
+    if (!value.isInitialized!) {
       throw new Exception("MLVision isn't initialized yet.");
     }
 
@@ -225,7 +225,7 @@ class FlutterVision extends ValueNotifier<CameraValue> {
   }
 
   Future<void> removeFaceDetector() async {
-    if (!value.isInitialized) {
+    if (!value.isInitialized!) {
       throw new Exception("FirebaseVision isn't initialized yet.");
     }
     await faceDetector.close();
