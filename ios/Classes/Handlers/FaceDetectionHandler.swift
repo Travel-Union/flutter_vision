@@ -105,6 +105,8 @@ class FaceDetectionHandler : ImageHandler {
                     data["noseBase"] = self.getPosition(landmark: noseBase)
                 }
                 
+                data["smile"] = 0.0
+                
                 if face.hasSmilingProbability {
                     data["smile"] = face.smilingProbability
                 }
@@ -126,9 +128,8 @@ class FaceDetectionHandler : ImageHandler {
                 faceDataList.append(data)
             }
             
-            if(faceDataList.count > 0) {
-                callback(["eventType": "faceDetection", "data": faceDataList])
-            }
+            callback(["eventType": "faceDetection", "data": faceDataList])
+            
         }
     }
     
