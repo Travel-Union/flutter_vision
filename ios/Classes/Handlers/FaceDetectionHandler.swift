@@ -53,7 +53,7 @@ class FaceDetectionHandler : ImageHandler {
           }
             
             var faceDataList = [[String:Any]]()
-
+            os_log("---- !!!! processing face data")
             for face in faces {
                 var data = [String:Any]()
                 
@@ -143,7 +143,8 @@ class FaceDetectionHandler : ImageHandler {
         
         let options = FaceDetectorOptions()
         options.performanceMode = .accurate
-        options.landmarkMode = .all
+        //options.landmarkMode = .all
+        options.contourMode = .all
         options.classificationMode = .all
         
         self.faceDetector = FaceDetector.faceDetector(options: options)
