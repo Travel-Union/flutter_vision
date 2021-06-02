@@ -131,7 +131,7 @@ public class FaceContourDetectionProcessor extends BaseImageAnalyzer<List<Face>>
         res.put("eventType", "faceDetection");
         res.put("data", data);
 
-        if(!data.isEmpty() && result != null) {
+        if (result != null) {
             result.onFaceResult(res);
         }
     }
