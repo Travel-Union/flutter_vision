@@ -136,13 +136,14 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
 
         imageAnalysis = new ImageAnalysis.Builder()
                 .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                .setTargetResolution(new Size(720,960))
+                .setTargetResolution(new Size(960,1280))
                 .build();
 
         ImageCapture.Builder builder = new ImageCapture.Builder();
 
         imageCapture = builder
-                .setTargetAspectRatio(AspectRatio.RATIO_4_3)
+                .setTargetResolution(new Size(960,1280))
+                //.setTargetAspectRatio(AspectRatio.RATIO_4_3)
                 .setTargetRotation(plugin.activityPluginBinding.getActivity().getWindowManager().getDefaultDisplay().getRotation())
                 .setTargetRotation(Surface.ROTATION_0)
                 .build();
@@ -214,7 +215,7 @@ public class CameraView implements PlatformView, MethodChannel.MethodCallHandler
                         Bitmap rotated = rotateImageIfRequired(bitmapImage, image.getImageInfo());
 
                         ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        rotated.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                        rotated.compress(Bitmap.CompressFormat.JPEG, 80, out);
 
                         myRequest.submit(out.toByteArray());
                         image.close();
